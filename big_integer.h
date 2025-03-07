@@ -89,8 +89,8 @@ template<> class BigInteger<2> : public BigNumber<2> {
   // Virtual change-type operators to override
   operator BigUnsigned<2>() const override;
   operator BigInteger<2>() const override;
- operator BigRational<2>() const override;
- };
+  operator BigRational<2>() const override;
+};
  
  
  
@@ -740,7 +740,11 @@ BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>
  }
  
  
- 
+/**
+ * @brief Overriding of add method, allocating the result in dynamic memory
+ * @param BigNumber<2> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<2> result of the sum
+ */
  BigNumber<2>& BigInteger<2>::add(const BigNumber<2>& other) const {
    const BigInteger<2>& other_integer = dynamic_cast<const BigInteger<2>&>(other);
    BigInteger<2>* result = new BigInteger<2>(*this + other_integer);
@@ -748,14 +752,23 @@ BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>
  }
  
  
- 
+/**
+ * @brief Overriding of subtract method, allocating the result in dynamic memory
+ * @param BigNumber<2> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<2> result of the rest
+ */
  BigNumber<2>& BigInteger<2>::subtract(const BigNumber<2>& other) const {
    const BigInteger<2>& other_integer = dynamic_cast<const BigInteger<2>&>(other);
    BigInteger<2>* result = new BigInteger<2>(*this - other_integer);
    return *result;
  }
  
- 
+
+/**
+ * @brief Overriding of multiply method, allocating the result in dynamic memory
+ * @param BigNumber<2> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<2> result of the multiplication
+ */
  BigNumber<2>& BigInteger<2>::multiply(const BigNumber<2>& other) const {
    const BigInteger<2>& other_integer = dynamic_cast<const BigInteger<2>&>(other);
    BigInteger<2>* result = new BigInteger<2>(*this * other_integer);
@@ -763,6 +776,11 @@ BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>
  }
  
  
+/**
+ * @brief Overriding of divide method, allocating the result in dynamic memory
+ * @param BigNumber<2> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<2> result of the divition
+ */
  BigNumber<2>& BigInteger<2>::divide(const BigNumber<2>& other) const {
    const BigInteger<2>& other_integer = dynamic_cast<const BigInteger<2>&>(other);
    BigInteger<2>* result = new BigInteger<2>(*this / other_integer);
@@ -770,15 +788,18 @@ BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>
  }
  
  
- 
- 
+/**
+ * @brief Operator to change type to BigUnsigned
+ * @return Equivalent BigUnsigned<2>
+ */
  BigInteger<2>::operator BigUnsigned<2>() const {
    std::string binary_string;
+   // Converting the vector of bools into a string
    for (bool bit : module_) {
      binary_string += (bit ? '1' : '0');
    }
  
-   // Convertir la cadena binaria a un array de unsigned char para el constructor de BigUnsigned<2>
+   // Converting the string into array of unsigned chars
    std::vector<unsigned char> binary_chars;
    for (char c : binary_string) {
      binary_chars.push_back(static_cast<unsigned char>(c));
@@ -788,13 +809,15 @@ BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>
  }
  
  
+/**
+ * @brief Operator to change type to BigInteger
+ * @return Equivalent BigInteger
+ */
  BigInteger<2>::operator BigInteger<2>() const {
    return *this;
  }
  
-
-
-
+// Its operator for chaging type to BigRational is in big_rational.h, line XXXX
 
 
 /**
@@ -1188,15 +1211,18 @@ template <unsigned char Base> BigInteger<Base> BigInteger<Base>::mcd(const BigIn
       temp_num_1 = temp;
     }
     return temp_num_1;
-  } catch (const BigNumberDivisionByZero()& error) {
+  } catch (const BigNumberDivisionByZero& error) {
     std::cerr << error.what() << std::endl;
     return null;
   }
 }
 
 
-
-
+/**
+ * @brief Overriding of add method, allocating the result in dynamic memory
+ * @param BigNumber<Base> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<Base> result of the sum
+ */
 template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::add(const BigNumber<Base>& other) const {
   const BigInteger<Base>& other_integer = dynamic_cast<const BigInteger<Base>&>(other);
   BigInteger<Base>* result = new BigInteger<Base>(*this + other_integer);
@@ -1204,7 +1230,11 @@ template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::add(const BigNu
 }
 
 
-
+/**
+ * @brief Overriding of subtract method, allocating the result in dynamic memory
+ * @param BigNumber<Base> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<Base> result of the rest
+ */
 template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::subtract(const BigNumber<Base>& other) const {
   const BigInteger<Base>& other_integer = dynamic_cast<const BigInteger<Base>&>(other);
   BigInteger<Base>* result = new BigInteger<Base>(*this - other_integer);
@@ -1212,6 +1242,11 @@ template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::subtract(const 
 }
 
 
+/**
+ * @brief Overriding of multiply method, allocating the result in dynamic memory
+ * @param BigNumber<Base> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<Base> result of the multiplication
+ */
 template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::multiply(const BigNumber<Base>& other) const {
   const BigInteger<Base>& other_integer = dynamic_cast<const BigInteger<Base>&>(other);
   BigInteger<Base>* result = new BigInteger<Base>(*this * other_integer);
@@ -1219,6 +1254,11 @@ template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::multiply(const 
 }
 
 
+/**
+ * @brief Overriding of divide method, allocating the result in dynamic memory
+ * @param BigNumber<Base> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<Base> result of the division
+ */
 template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::divide(const BigNumber<Base>& other) const {
   const BigInteger<Base>& other_integer = dynamic_cast<const BigInteger<Base>&>(other);
   BigInteger<Base>* result = new BigInteger<Base>(*this / other_integer);
@@ -1226,19 +1266,31 @@ template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::divide(const Bi
 }
 
 
-
-
+/**
+ * @brief Operator to change type to BigUnsigned
+ * @return Equivalent BigUnsigned
+ */
 template <unsigned char Base> BigInteger<Base>::operator BigUnsigned<Base>() const {
   return module_;
 }
 
+
+/**
+ * @brief Operator to change type to BigInteger
+ * @return Equivalent BigInteger
+ */
 template <unsigned char Base> BigInteger<Base>::operator BigInteger<Base>() const {
   return *this;
 }
 
 
+/**
+ * @brief Operator to change type to BigRational
+ * @return Equivalent BigRational
+ */
 template <unsigned char Base> BigInteger<Base>::operator BigRational<Base>() const {
   return BigRational<Base>(*this);
 }
+
 
 #endif

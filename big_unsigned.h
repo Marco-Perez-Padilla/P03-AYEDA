@@ -705,7 +705,11 @@ template <unsigned char Base> BigUnsigned<Base> operator/(const BigUnsigned<Base
 }
 
 
-
+/**
+ * @brief Overriding of add method, allocating the result in dynamic memory
+ * @param BigNumber<Base> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<Base> result of the sum
+ */
 template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::add(const BigNumber<Base>& other) const {
   const BigUnsigned<Base>& otherUnsigned = dynamic_cast<const BigUnsigned<Base>&>(other);
   BigUnsigned<Base>* result = new BigUnsigned<Base>(*this + otherUnsigned);
@@ -713,7 +717,11 @@ template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::add(const BigN
 }
 
 
-
+/**
+ * @brief Overriding of subtract method, allocating the result in dynamic memory
+ * @param BigNumber<Base> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<Base> result of the rest
+ */
 template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::subtract(const BigNumber<Base>& other) const {
   const BigUnsigned<Base>& otherUnsigned = dynamic_cast<const BigUnsigned<Base>&>(other);
   BigUnsigned<Base>* result = new BigUnsigned<Base>(*this - otherUnsigned);
@@ -721,6 +729,11 @@ template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::subtract(const
 }
 
 
+/**
+ * @brief Overriding of multiply method, allocating the result in dynamic memory
+ * @param BigNumber<Base> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<Base> result of the multiplication
+ */
 template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::multiply(const BigNumber<Base>& other) const {
   const BigUnsigned<Base>& otherUnsigned = dynamic_cast<const BigUnsigned<Base>&>(other);
   BigUnsigned<Base>* result = new BigUnsigned<Base>(*this * otherUnsigned);
@@ -728,6 +741,11 @@ template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::multiply(const
 }
 
 
+/**
+ * @brief Overriding of divide method, allocating the result in dynamic memory
+ * @param BigNumber<Base> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<Base> result of the division
+ */
 template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::divide(const BigNumber<Base>& other) const {
   const BigUnsigned<Base>& otherUnsigned = dynamic_cast<const BigUnsigned<Base>&>(other);
   BigUnsigned<Base>* result = new BigUnsigned<Base>(*this / otherUnsigned);
@@ -735,17 +753,28 @@ template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::divide(const B
 }
 
 
-
-
+/**
+ * @brief Operator to change type to BigUnsigned
+ * @return Equivalent BigUnsigned
+ */
 template <unsigned char Base> BigUnsigned<Base>::operator BigUnsigned<Base>() const {
   return *this;
 }
 
+
+/**
+ * @brief Operator to change type to BigInteger
+ * @return Equivalent BigInteger
+ */
 template <unsigned char Base> BigUnsigned<Base>::operator BigInteger<Base>() const {
   return BigInteger<Base>(*this);
 }
 
 
+/**
+ * @brief Operator to change type to BigRational
+ * @return Equivalent BigRational
+ */
 template <unsigned char Base> BigUnsigned<Base>::operator BigRational<Base>() const {
   BigInteger<Base> big_int = BigInteger<Base>(*this);; 
   return BigRational<Base>(big_int);
