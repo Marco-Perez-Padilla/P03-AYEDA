@@ -22,6 +22,8 @@
 **      24/02/2025 - Creacion de constructores y operadores =, << y >> para la base dos
 **      25/02/2025 - Creacion del resto de operadores y metodos para la base dos
 **      25/02/2025 - Adicion del constructor de cambio de tipo de BigUnsigned<2> a BigInteger<2>
+**      06/03/2025 - Adaptacion de la plantilla para usar la clase abstracta BigNumber (big_number.h)
+**      06/03/2025 - Adaptacion de la especializacion en base 2 para usar la clase abstracta BigNumber (big_number.h)
 **/
 
 

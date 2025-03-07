@@ -18,6 +18,8 @@
 **      25/02/2025 - Creacion (primera version) del codigo
 **      26/02/2025 - Creacion de constructores y operadores de extraccion e insercion
 **      26/02/2025 - Creacion del resto de metodos para operar con ellos
+**      06/03/2025 - Adaptacion del codigo para usar la clase abstracta BigNumber (big_number.h)
+**      07/03/2025 - Creacion de la especializacion para base 2 para arreglar errores al adaptar al uso de BigNumber
 **/
 
 

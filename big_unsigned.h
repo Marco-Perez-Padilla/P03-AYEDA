@@ -19,6 +19,7 @@
 **      11/02/2025 - Finalizacion de la primera version del codigo
 **      21/02/2025 - Inicio de segunda version del codigo. Adaptación a plantillas
 **      23/02/2025 - Adaptación de suma y resta para trabajar entre las bases 2 y 36
+**      06/03/2025 - Adaptacion del codigo para usar la clase abstracta BigNumber (big_number.h)
 **/
 
 #ifndef BIG_UNSIGNED_H
@@ -28,7 +29,7 @@
 #include <vector>
 #include "big_number.h"
 
-
+// Forward declarations to make possible the change-type operators
 template <unsigned char Base> class BigInteger;
 template <unsigned char Base> class BigRational;
 
@@ -55,7 +56,7 @@ template <unsigned char Base = 10> class BigUnsigned : public BigNumber<Base> {
   void setDigits(const std::vector<unsigned char> digits) {digits_ = digits;}
   // Assignation operator 
   BigUnsigned& operator=(const BigUnsigned&);
-  // Insertion and extraction operators
+  // Insertion and extraction methods
   std::ostream& write (std::ostream&) const override;
   std::istream& read (std::istream&) override;
   // Comparation operators
@@ -68,14 +69,12 @@ template <unsigned char Base = 10> class BigUnsigned : public BigNumber<Base> {
   friend BigUnsigned<Base> operator/ <Base> (const BigUnsigned<Base>&, const BigUnsigned<Base>&);
   // Auxiliar method
   void AddDigit (unsigned char digit) {digits_.push_back(digit);} // Adds a digit
-
+  // Virtual methods to override
   BigNumber<Base>& add(const BigNumber<Base>&) const override;
   BigNumber<Base>& subtract(const BigNumber<Base>&) const override;
   BigNumber<Base>& multiply(const BigNumber<Base>&) const override;
   BigNumber<Base>& divide(const BigNumber<Base>&) const override;
-
-
-
+  // Virtual change-type operators to override
   operator BigUnsigned<Base>() const override;
   operator BigInteger<Base>() const override;
   operator BigRational<Base>() const override;
