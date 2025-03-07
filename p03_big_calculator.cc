@@ -4,12 +4,12 @@
 ** Grado en Ingenieria Informatica
 ** Asignatura: Algoritmos y Estructuras de Datos Avanzadas
 ** Curso: 2º
-** Practica 1: Representación de números grandes
+** Practica 3: Representación de números grandes
 ** Autor: Marco Pérez Padilla
 ** Correo: alu0101469348@ull.edu.es
 ** Fecha: 05/02/2025
 
-** Archivo p02_big_rationals.cc: programa cliente.
+** Archivo p03_big_calculator.cc: programa cliente.
 **      Contiene la funcion main del proyecto que usa las templates para trabajar con numeros racionales en bases 2, 8, 10 y 16
 **
 ** Referencias:
@@ -20,7 +20,8 @@
 **      12/02/2025 - Version final de la primera version del codigo
 **      24/02/2026 - Adaptacion provisional para trabajar con plantillas
 **      26/02/2025 - Adicion de funciones para instanciar las plantillas en tiempo de compilacion
-**      26/02/2025 - Adaptacion final del codigo para trabajar con ficheros de entrada y salida
+**      26/02/2025 - Adaptacion final del la version 2.0 del codigo para trabajar con ficheros de entrada y salida
+**      07/03/2025 - Adicion de las clases BigNumber y BigNumberException
 **/
 
 #include <iostream>
