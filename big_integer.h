@@ -35,7 +35,7 @@
 #include "big_unsigned.h"
 #include "big_number.h"
 
-
+// Forward declaration
 template <unsigned char Base> class BigRational;
 
 
@@ -43,57 +43,53 @@ template <unsigned char Base> class BigRational;
  * @brief Specialization of BigInteger for the base 2
  */
 template<> class BigInteger<2> : public BigNumber<2> {
-  private:
-   std::vector<bool> module_; // Vector of bools to improve efficiency
-   bool sign_; // 1 if positive, 0 if negative
+ private:
+  std::vector<bool> module_; // Vector of bools to improve efficiency
+  bool sign_; // 1 if positive, 0 if negative
  
-   std::vector<bool> UnsignedSum(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) const; // Sum not considering the signs
-   BigInteger<2> TwosComplement() const; // Two's complement
+  std::vector<bool> UnsignedSum(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) const; // Sum not considering the signs
+  BigInteger<2> TwosComplement() const; // Two's complement
  
-   void ProcessZeros();
-   void Clear() {module_.clear();}
-  public:
-   // Constructors
-   BigInteger(int n = 0);
-   BigInteger(const unsigned char* );
-   BigInteger(const BigUnsigned<2>&);
-   BigInteger(const std::vector<bool>& module, bool sign) : module_(module), sign_(sign) {};
-   BigInteger(const BigInteger<2>& big_binary) : module_(big_binary.getModule()), sign_(big_binary.getSign()) {}; // Constructor de copia
-   
-   // Getters
-   const std::vector<bool> getModule() const {return module_;}
-   const bool getSign() const {return sign_;}
-   // Setters
-   void setModule(const std::vector<bool>& module) {module_ = module;}
-   void setSign(const bool sign) {sign_ = sign;}
-   // Assignation operator 
-   BigInteger<2>& operator=(const BigInteger<2>&);
-   // Insertion and extraction operators
-   std::ostream& write (std::ostream&) const override;
-   std::istream& read (std::istream&) override;
-   // Comparation operators
-   friend bool operator< (const BigInteger<2>&, const BigInteger<2>&);
-   // Arithmetic operators 
-   friend BigInteger<2> operator+ (const BigInteger<2>&, const BigInteger<2>&);
-   BigInteger<2> operator-(const BigInteger<2>&) const;
-   BigInteger<2> operator*(const BigInteger<2>&) const;
-   BigInteger<2> operator%(const BigInteger<2>&) const;
-   friend BigInteger<2> operator/ (const BigInteger<2>&, const BigInteger<2>&);
-   BigInteger<2> mcd(const BigInteger<2>&, const BigInteger<2>&) const;
-   // Auxiliar method
-   void AddDigit (unsigned char digit) {module_.push_back(digit);} // Adds a digit
- 
- 
-   BigNumber<2>& add(const BigNumber<2>&) const override;
-   BigNumber<2>& subtract(const BigNumber<2>&) const override;
-   BigNumber<2>& multiply(const BigNumber<2>&) const override;
-   BigNumber<2>& divide(const BigNumber<2>&) const override;
- 
- 
- 
-   operator BigUnsigned<2>() const override;
-   operator BigInteger<2>() const override;
-   operator BigRational<2>() const override;
+  void ProcessZeros();
+  void Clear() {module_.clear();}
+ public:
+  // Constructors
+  BigInteger(int n = 0);
+  BigInteger(const unsigned char* );
+  BigInteger(const BigUnsigned<2>&);
+  BigInteger(const std::vector<bool>& module, bool sign) : module_(module), sign_(sign) {};
+  BigInteger(const BigInteger<2>& big_binary) : module_(big_binary.getModule()), sign_(big_binary.getSign()) {}; // Constructor de copia
+  // Getters
+  const std::vector<bool> getModule() const {return module_;}
+  const bool getSign() const {return sign_;}
+  // Setters
+  void setModule(const std::vector<bool>& module) {module_ = module;}
+  void setSign(const bool sign) {sign_ = sign;}
+  // Assignation operator 
+  BigInteger<2>& operator=(const BigInteger<2>&);
+  // Insertion and extraction methods
+  std::ostream& write (std::ostream&) const override;
+  std::istream& read (std::istream&) override;
+  // Comparation operators
+  friend bool operator< (const BigInteger<2>&, const BigInteger<2>&);
+  // Arithmetic operators 
+  friend BigInteger<2> operator+ (const BigInteger<2>&, const BigInteger<2>&);
+  BigInteger<2> operator-(const BigInteger<2>&) const;
+  BigInteger<2> operator*(const BigInteger<2>&) const;
+  BigInteger<2> operator%(const BigInteger<2>&) const;
+  friend BigInteger<2> operator/ (const BigInteger<2>&, const BigInteger<2>&);
+  BigInteger<2> mcd(const BigInteger<2>&, const BigInteger<2>&) const;
+  // Auxiliar method
+  void AddDigit (unsigned char digit) {module_.push_back(digit);} // Adds a digit
+  // Virtual methods to override
+  BigNumber<2>& add(const BigNumber<2>&) const override;
+  BigNumber<2>& subtract(const BigNumber<2>&) const override;
+  BigNumber<2>& multiply(const BigNumber<2>&) const override;
+  BigNumber<2>& divide(const BigNumber<2>&) const override;
+  // Virtual change-type operators to override
+  operator BigUnsigned<2>() const override;
+  operator BigInteger<2>() const override;
+ operator BigRational<2>() const override;
  };
  
  
@@ -139,29 +135,32 @@ template<> class BigInteger<2> : public BigNumber<2> {
    // Temporal vector. We'll use it to revert the addition order 
    std::vector<unsigned char> temp_digits;
    unsigned i {0};
-   // For each char in the array, until it reaches '<\0'
-   while (char_array[i] != '\0') {
-     // If it's not a number, abort
-     if (char_array[i] != '0' && char_array[i] != '1') { // REVISAR
-       std::cerr << "The array must not contain a non-numeric character" << std::endl;
-       return;
-     } else {
-       // Convert the digit
-       bool digit;
-       if (char_array[i] == '0') {
-         digit = 0;
-       } else {
-         digit = 1;
-       }
-       temp_digits.push_back(digit);
-     }
-     ++i;    
-   }
- 
-   // Revert the order
-   for (int j = temp_digits.size() - 1; j >= 0; j--) {
-     module_.push_back(temp_digits[j]);
-   }
+   try {
+    // For each char in the array, until it reaches '<\0'
+    while (char_array[i] != '\0') {
+      // If it's not a number, abort
+      if (char_array[i] != '0' && char_array[i] != '1') { // REVISAR
+        throw BigNumberBadDigit(char_array[i]);
+      } else {
+        // Convert the digit
+        bool digit;
+        if (char_array[i] == '0') {
+          digit = 0;
+        } else {
+          digit = 1;
+        }
+        temp_digits.push_back(digit);
+      }
+      ++i;    
+    }
+  
+    // Revert the order
+    for (int j = temp_digits.size() - 1; j >= 0; j--) {
+      module_.push_back(temp_digits[j]);
+    }
+  } catch (const BigNumberBadDigit& error) {
+    std::cerr << error.what() << std::endl;
+  }
  }
  
  
@@ -219,42 +218,46 @@ template<> class BigInteger<2> : public BigNumber<2> {
   * @param BI number to be inserted
   * @return istream
   */
- std::istream& BigInteger<2>::read(std::istream& is) {
-   std::string input;
-   is >> input;
-   // Initialize a bool to create the BI number
-   module_.clear();
-   bool not_negative = true;
- 
-   std::vector <bool> temp;
-   // If not empty and the string starts with "-"
-   if (!(input.empty()) && input[0] == '-') {
-     not_negative = false; //It's negative
-     input.erase(0, 1); // Erase one position starting from the position zero ("-")
-   }
-   
-   // Adding bools to the vector
-   for (char caracter : input) {
-     if (caracter != '1' && caracter != '0') {
-       std::cerr << "Error" << std::endl;
-       return is;
-     } else if (caracter == '1') {
-       temp.push_back(1);
-     } else {
-       temp.push_back(0);
-     }
-   }
- 
-   // Revert the order
-   for (int i {temp.size()-1}; i >= 0; --i) {
-     module_.push_back(temp[i]);
-   }
- 
-   // Fix the sign
-   sign_ = not_negative;
- 
-   return is;
- }
+std::istream& BigInteger<2>::read(std::istream& is) {
+  std::string input;
+  try {
+    is >> input;
+    // Initialize a bool to create the BI number
+    module_.clear();
+    bool not_negative = true;
+  
+    std::vector <bool> temp;
+    // If not empty and the string starts with "-"
+    if (!(input.empty()) && input[0] == '-') {
+      not_negative = false; //It's negative
+      input.erase(0, 1); // Erase one position starting from the position zero ("-")
+    }
+    
+    // Adding bools to the vector
+    for (char caracter : input) {
+      if (caracter != '1' && caracter != '0') {
+        throw BigNumberBadDigit(caracter);
+      } else if (caracter == '1') {
+        temp.push_back(1);
+      } else {
+        temp.push_back(0);
+      }
+    }
+  
+    // Revert the order
+    for (int i {temp.size()-1}; i >= 0; --i) {
+      module_.push_back(temp[i]);
+    }
+  
+    // Fix the sign
+    sign_ = not_negative;
+  
+    return is;
+  } catch (const BigNumberBadDigit& error) {
+    std::cerr << error.what() << std::endl;
+    return is;
+  }
+}
  
  
  /**
@@ -631,17 +634,28 @@ template<> class BigInteger<2> : public BigNumber<2> {
   */
  BigInteger<2> BigInteger<2>::operator% (const BigInteger<2>& big_binary) const {
    BigInteger<2> temp_num = *this;
-   BigInteger<2> big_binary_copy = big_binary;
- 
-   temp_num.setSign(1);
-   big_binary_copy.setSign(1);
- 
-   while (temp_num >= big_binary_copy) {
-     temp_num = temp_num - big_binary_copy;
-     temp_num.ProcessZeros();
+   try {
+    if (big_binary == BigInteger<2>()) {
+      throw BigNumberDivisionByZero();
+    }
+
+    BigInteger<2> big_binary_copy = big_binary;
+  
+    temp_num.setSign(1);
+    big_binary_copy.setSign(1);
+  
+    while (temp_num >= big_binary_copy) {
+      temp_num = temp_num - big_binary_copy;
+      temp_num.ProcessZeros();
+    }
+  
+    return temp_num;
+   }catch(const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    temp_num.Clear();
+    temp_num.AddDigit(0);
+    return temp_num;
    }
- 
-   return temp_num;
  }
  
  
@@ -651,12 +665,14 @@ template<> class BigInteger<2> : public BigNumber<2> {
   * @param BI denominator
   * @return BI integer result
   */
- BigInteger<2> operator/ (const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) {
-   BigInteger<2> temp_num;
- 
-   if ((big_binary_2.getModule().size() == 1 && big_binary_2.getModule()[0] == 0) || (big_binary_1.getModule().size() == 1 && big_binary_1.getModule()[0] == 0) || (big_binary_1.getModule().empty()) || (big_binary_2.getModule().empty())) {
-     temp_num.AddDigit(0);
-     return temp_num;
+BigInteger<2> operator/ (const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) {
+  BigInteger<2> temp_num;
+  try {
+   if ((big_binary_2.getModule().size() == 1 && big_binary_2.getModule()[0] == 0) || (big_binary_2.getModule().empty())) {
+     throw BigNumberDivisionByZero();
+   } else if ((big_binary_1.getModule().size() == 1 && big_binary_1.getModule()[0] == 0) || (big_binary_1.getModule().empty())) {
+    temp_num.AddDigit(0);
+    return temp_num;
    }
  
    temp_num.Clear();
@@ -679,6 +695,11 @@ template<> class BigInteger<2> : public BigNumber<2> {
    }
  
    return counter;
+  } catch (const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    temp_num.AddDigit(0);
+    return temp_num;
+  }
  }
  
  
@@ -688,26 +709,34 @@ template<> class BigInteger<2> : public BigNumber<2> {
   * @param BI Number 2
   * @return Greatest common divisor between both BI in base two
   */
- BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>& num_2) const {
-   // Getting two temporal BI to modify in the iterative version of the GCD, with motivation not to overflow the stack with recursive calls
-   BigInteger<2> temp_num_1 = num_1;
-   BigInteger<2> temp_num_2 = num_2;
-   // Null Integer to compare in the while
-   BigInteger<2> null;
+BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>& num_2) const {
+  // Getting two temporal BI to modify in the iterative version of the GCD, with motivation not to overflow the stack with recursive calls
+  BigInteger<2> temp_num_1 = num_1;
+  BigInteger<2> temp_num_2 = num_2;
+  // Null Integer to compare in the while
+  BigInteger<2> null;
    
-   temp_num_1.setSign(1);
-   temp_num_2.setSign(1);
+  temp_num_1.setSign(1);
+  temp_num_2.setSign(1);
  
-   // While the second number is not 0
-   while (!(temp_num_2 == null) && !(temp_num_2 < null)) {
-     // Auxiliar number is the second number
-     BigInteger<2> temp = temp_num_2;
-     // Second number is module of first and second number
-     temp_num_2 = temp_num_1 % temp_num_2;
-     // Getting the previous second number, that will be the first number in the first steps
-     temp_num_1 = temp;
-   }
-   return temp_num_1;
+  try {
+    if (num_2 == BigInteger<2>()) {
+      throw BigNumberDivisionByZero();
+    }
+    // While the second number is not 0
+    while (!(temp_num_2 == null) && !(temp_num_2 < null)) {
+      // Auxiliar number is the second number
+      BigInteger<2> temp = temp_num_2;
+      // Second number is module of first and second number
+      temp_num_2 = temp_num_1 % temp_num_2;
+      // Getting the previous second number, that will be the first number in the first steps
+      temp_num_1 = temp;
+    }
+    return temp_num_1;
+  } catch (const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    return null;
+  }
  }
  
  
@@ -802,15 +831,12 @@ template <unsigned char Base = 10> class BigInteger : public BigNumber<Base> {
   BigInteger<Base> operator%(const BigInteger<Base>&) const;
   template <unsigned char B> friend BigInteger<Base> operator/ (const BigInteger<Base>&, const BigInteger<Base>&);
   BigInteger<Base> mcd(const BigInteger<Base>&, const BigInteger<Base>&) const;
-
-
+  // Virtual methods to override
   BigNumber<Base>& add(const BigNumber<Base>&) const override;
   BigNumber<Base>& subtract(const BigNumber<Base>&) const override;
   BigNumber<Base>& multiply(const BigNumber<Base>&) const override;
   BigNumber<Base>& divide(const BigNumber<Base>&) const override;
-
-
-
+  // Virtual change-type operators to override
   operator BigUnsigned<Base>() const override;
   operator BigInteger<Base>() const override;
   operator BigRational<Base>() const override;
@@ -1148,16 +1174,24 @@ template <unsigned char Base> BigInteger<Base> BigInteger<Base>::mcd(const BigIn
   BigInteger<Base> temp_num_2 = num_2;
   // Null Integer to compare in the while
   BigInteger<Base> null (BigUnsigned<Base>(), 1);
-  // While the second number is not 0
-  while (!(temp_num_2 == null)) {
-    // Auxiliar number is the second number
-    BigInteger<Base> temp = temp_num_2;
-    // Second number is module of first and second number
-    temp_num_2 = temp_num_1 % temp_num_2;
-    // Getting the previous second number, that will be the first number in the first steps
-    temp_num_1 = temp;
+  try {
+    if (num_2 == null) {
+      throw BigNumberDivisionByZero();
+    }
+    // While the second number is not 0
+    while (!(temp_num_2 == null)) {
+      // Auxiliar number is the second number
+      BigInteger<Base> temp = temp_num_2;
+      // Second number is module of first and second number
+      temp_num_2 = temp_num_1 % temp_num_2;
+      // Getting the previous second number, that will be the first number in the first steps
+      temp_num_1 = temp;
+    }
+    return temp_num_1;
+  } catch (const BigNumberDivisionByZero()& error) {
+    std::cerr << error.what() << std::endl;
+    return null;
   }
-  return temp_num_1;
 }
 
 

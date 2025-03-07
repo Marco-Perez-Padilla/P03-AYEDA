@@ -20,6 +20,7 @@
 **      21/02/2025 - Inicio de segunda version del codigo. Adaptación a plantillas
 **      23/02/2025 - Adaptación de suma y resta para trabajar entre las bases 2 y 36
 **      06/03/2025 - Adaptacion del codigo para usar la clase abstracta BigNumber (big_number.h)
+**      07/03/2025 - Adicion de manejo de excepciones
 **/
 
 #ifndef BIG_UNSIGNED_H
