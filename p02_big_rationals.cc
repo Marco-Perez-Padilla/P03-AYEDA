@@ -29,6 +29,7 @@
 #include "big_unsigned.h"
 #include "big_integer.h"
 #include "big_rational.h"
+#include "big_number.h"
 
 #include "check_functions.h"
 
@@ -136,6 +137,7 @@ int main (int argc, char* argv[]) {
 
   std::cout << "prueba" << std::endl;
 
+  
   // if (!in_file) {
   //   std::cerr << "Error: File " << input << " couldn't be opened" << std::endl;
   //   return EXIT_FAILURE;

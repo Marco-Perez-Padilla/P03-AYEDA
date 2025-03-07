@@ -9,7 +9,7 @@
 ** Correo: alu0101469348@ull.edu.es
 ** Fecha: 06/03/2025
 
-** Archivo big_number.h: Declaracion e implementacion de la plantilla para representar numeros enteros grandes en cualquier base
+** Archivo big_number.h: Declaracion de la clase interfaz que tiene como clases derivadas a BigInteger, BigUnsigned y BigRational
 **
 ** Referencias:
 **      Enlaces de interes
@@ -21,6 +21,8 @@
 
 #ifndef BIG_NUMBER_H
 #define BIG_NUMBER_H
+
+#include "big_number_exception.h"
 
 // Forward declarations
 template <unsigned char Base> class BigUnsigned;
@@ -60,22 +62,21 @@ template <unsigned char Base> class BigNumber {
 template <unsigned char Base> BigNumber<Base>* BigNumber<Base>::create(const char* str) {
   std::string input(str);
     
-  // Verificamos el sufijo para determinar el tipo de número grande
   if (input.back() == 'u') {
-    input.pop_back(); // Quitamos el sufijo 'u'
-    return new BigUnsigned<Base>(input); // Creamos un BigUnsigned
+    input.pop_back(); // Remove it
+    return new BigUnsigned<Base>(input); // Create a BigUnsigned
   } 
   else if (input.back() == 'i') {
-    input.pop_back(); // Quitamos el sufijo 'i'
-    return new BigInteger<Base>(input); // Creamos un BigInteger
+    input.pop_back(); // Remove it
+    return new BigInteger<Base>(input); // Create a BigInteger
   } 
   else if (input.back() == 'r') {
-    input.pop_back(); // Quitamos el sufijo 'r'
-    return new BigRational<Base>(input); // Creamos un BigRational
+    input.pop_back(); // Remove it
+    return new BigRational<Base>(input); // Create a BigRational
   }
+
   
-  // Si el sufijo no es válido, lanzamos una excepción
-  throw std::invalid_argument("Formato incorrecto: El número debe terminar en 'u', 'i' o 'r'");
+  BigNumberNotRecognized(input.back());
 }
 
 

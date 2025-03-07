@@ -27,7 +27,9 @@
 
 #include <iostream>
 #include <vector>
+
 #include "big_number.h"
+#include "big_number_exception.h"
 
 // Forward declarations to make possible the change-type operators
 template <unsigned char Base> class BigInteger;
