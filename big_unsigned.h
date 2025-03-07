@@ -26,7 +26,11 @@
 
 #include <iostream>
 #include <vector>
+#include "big_number.h"
 
+
+template <unsigned char Base> class BigInteger;
+template <unsigned char Base> class BigRational;
 
 /**
  * @brief Template of BigUnsigned classes, it generates a BigUnsigned number depending on the base passed as parameter.
@@ -34,7 +38,7 @@
  *        calculation and representation
  * @param unsigned_char base of representation
  */
-template <unsigned char Base = 10> class BigUnsigned {
+template <unsigned char Base = 10> class BigUnsigned : public BigNumber<Base> {
  private:
   std::vector<unsigned char> digits_;
 
@@ -52,8 +56,8 @@ template <unsigned char Base = 10> class BigUnsigned {
   // Assignation operator 
   BigUnsigned& operator=(const BigUnsigned&);
   // Insertion and extraction operators
-  friend std::ostream& operator<< <Base> (std::ostream&, const BigUnsigned<Base>&);
-  friend std::istream& operator>> <Base> (std::istream&, BigUnsigned<Base>&);
+  std::ostream& write (std::ostream&) const override;
+  std::istream& read (std::istream&) override;
   // Comparation operators
   friend bool operator< <Base> (const BigUnsigned<Base>&, const BigUnsigned<Base>&);
   // Arithmetic operators 
@@ -64,6 +68,17 @@ template <unsigned char Base = 10> class BigUnsigned {
   friend BigUnsigned<Base> operator/ <Base> (const BigUnsigned<Base>&, const BigUnsigned<Base>&);
   // Auxiliar method
   void AddDigit (unsigned char digit) {digits_.push_back(digit);} // Adds a digit
+
+  BigNumber<Base>& add(const BigNumber<Base>&) const override;
+  BigNumber<Base>& subtract(const BigNumber<Base>&) const override;
+  BigNumber<Base>& multiply(const BigNumber<Base>&) const override;
+  BigNumber<Base>& divide(const BigNumber<Base>&) const override;
+
+
+
+  operator BigUnsigned<Base>() const override;
+  operator BigInteger<Base>() const override;
+  operator BigRational<Base>() const override;
 };
 
 
@@ -140,16 +155,16 @@ template <unsigned char Base> BigUnsigned<Base>& BigUnsigned<Base>::operator=(co
  * @param BigUnsigned number to be printed
  * @return ostream
  */
-template <unsigned char Base> std::ostream& operator<<(std::ostream& os, const BigUnsigned<Base>& num) {
-  if (num.getDigits().empty()) {
+template <unsigned char Base> std::ostream& BigUnsigned<Base>::write(std::ostream& os) const {
+  if (digits_.empty()) {
     os << '0';
   } else {
-    for (int i {num.getDigits().size() - 1}; i >= 0; --i) {
+    for (int i {digits_.size() - 1}; i >= 0; --i) {
       // If the digit's value is greater than 9, we're on higher than 10 bases. We need letters to represent it. We get here its representation (not its ascii code)
-      if (num.getDigits()[i] >= 'A' && num.getDigits()[i] <= 'Z') {
-        os << num.getDigits()[i];
+      if (digits_[i] >= 'A' && digits_[i] <= 'Z') {
+        os << digits_[i];
       } else {
-        int digit = num.getDigits()[i];
+        int digit = digits_[i];
         os << digit;
       }
     } 
@@ -164,10 +179,10 @@ template <unsigned char Base> std::ostream& operator<<(std::ostream& os, const B
  * @param BigUnsigned number to be inserted
  * @return istream
  */
-template <unsigned char Base> std::istream& operator>>(std::istream& is, BigUnsigned<Base>& num) {
+template <unsigned char Base> std::istream& BigUnsigned<Base>::read(std::istream& is) {
   std::string input;
   is >> input;
-  num = BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(input.data()));
+  *this = BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(input.data()));
   return is;
 }
 
@@ -666,6 +681,53 @@ template <unsigned char Base> BigUnsigned<Base> operator/(const BigUnsigned<Base
   }
 
   return counter;
+}
+
+
+
+template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::add(const BigNumber<Base>& other) const {
+  const BigUnsigned<Base>& otherUnsigned = dynamic_cast<const BigUnsigned<Base>&>(other);
+  BigUnsigned<Base>* result = new BigUnsigned<Base>(*this + otherUnsigned);
+  return *result;
+}
+
+
+
+template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::subtract(const BigNumber<Base>& other) const {
+  const BigUnsigned<Base>& otherUnsigned = dynamic_cast<const BigUnsigned<Base>&>(other);
+  BigUnsigned<Base>* result = new BigUnsigned<Base>(*this - otherUnsigned);
+  return *result;
+}
+
+
+template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::multiply(const BigNumber<Base>& other) const {
+  const BigUnsigned<Base>& otherUnsigned = dynamic_cast<const BigUnsigned<Base>&>(other);
+  BigUnsigned<Base>* result = new BigUnsigned<Base>(*this * otherUnsigned);
+  return *result;
+}
+
+
+template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::divide(const BigNumber<Base>& other) const {
+  const BigUnsigned<Base>& otherUnsigned = dynamic_cast<const BigUnsigned<Base>&>(other);
+  BigUnsigned<Base>* result = new BigUnsigned<Base>(*this / otherUnsigned);
+  return *result;
+}
+
+
+
+
+template <unsigned char Base> BigUnsigned<Base>::operator BigUnsigned<Base>() const {
+  return *this;
+}
+
+template <unsigned char Base> BigUnsigned<Base>::operator BigInteger<Base>() const {
+  return BigInteger<Base>(*this);
+}
+
+
+template <unsigned char Base> BigUnsigned<Base>::operator BigRational<Base>() const {
+  BigInteger<Base> big_int = BigInteger<Base>(*this);; 
+  return BigRational<Base>(big_int);
 }
 
 #endif
