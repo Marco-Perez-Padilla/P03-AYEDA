@@ -111,28 +111,31 @@ template <unsigned char Base> BigUnsigned<Base>::BigUnsigned(const unsigned char
   // Temporal vector. We'll use it to revert the addition order 
   std::vector<unsigned char> temp_digits;
   unsigned i {0};
-  // For each char in the array, until it reaches '<\0'
-  while (char_array[i] != '\0') {
-    // If it's not a number, abort
-    if ((char_array[i] < '0' || char_array[i] > (Base + '0')) && (char_array[i] < 'A' || char_array[i] > 'Z' || Base < 10)) { // REVISAR
-      std::cerr << "The array must not contain a non-numeric character" << std::endl;
-      return;
-    } else {
-      // Convert the digit
-      if (char_array[i] >= 'A' && char_array[i] <= 'Z') {
-        unsigned char digit = char_array[i];
-        temp_digits.push_back(digit);
+  try {
+    // For each char in the array, until it reaches '<\0'
+    while (char_array[i] != '\0') {
+      // If it's not a number, abort
+      if ((char_array[i] < '0' || char_array[i] > (Base + '0')) && (char_array[i] < 'A' || char_array[i] > 'Z' || Base < 10)) { // REVISAR
+        throw BigNumberBadDigit(char_array[i]);
       } else {
-        unsigned char digit = char_array[i] - '0';;
-        temp_digits.push_back(digit);
+        // Convert the digit
+        if (char_array[i] >= 'A' && char_array[i] <= 'Z') {
+          unsigned char digit = char_array[i];
+          temp_digits.push_back(digit);
+        } else {
+          unsigned char digit = char_array[i] - '0';;
+          temp_digits.push_back(digit);
+        }
+        ++i;
       }
-      ++i;
     }
-  }
 
-  // Revert the order
-  for (int j = temp_digits.size() - 1; j >= 0; j--) {
-    digits_.push_back(temp_digits[j]);
+    // Revert the order
+    for (int j = temp_digits.size() - 1; j >= 0; j--) {
+      digits_.push_back(temp_digits[j]);
+    }
+  } catch (const BigNumberBadDigit& error) {
+    std::cerr << error.what() << std::endl;
   }
 }
 
@@ -646,13 +649,22 @@ template <unsigned char Base> BigUnsigned<Base> BigUnsigned<Base>::operator*(con
  */
 template <unsigned char Base> BigUnsigned<Base> BigUnsigned<Base>::operator%(const BigUnsigned<Base>& big_unsigned) const {
   BigUnsigned<Base> temp_num;
-  temp_num = *this;
-  while (temp_num >= big_unsigned) {
-    temp_num = temp_num - big_unsigned;
-    temp_num.ProcessZeros();
-  }
+  try {
+    if (big_unsigned == BigUnsigned<Base>()) {
+      throw BigNumberDivisionByZero();
+    }
+    temp_num = *this;
+    while (temp_num >= big_unsigned) {
+      temp_num = temp_num - big_unsigned;
+      temp_num.ProcessZeros();
+    }
 
-  return temp_num;
+    return temp_num;
+  } catch (const BigNumberDivisionByZero& error){
+    std::cerr << error.what() << std::endl;
+    temp_num.AddDigit(0);
+    return temp_num;
+  }
 }
 
 
@@ -664,24 +676,31 @@ template <unsigned char Base> BigUnsigned<Base> BigUnsigned<Base>::operator%(con
  */
 template <unsigned char Base> BigUnsigned<Base> operator/(const BigUnsigned<Base>& big_unsigned_1, const BigUnsigned<Base>& big_unsigned_2) {
   BigUnsigned<Base> temp_num;
+  try {
+    if ((big_unsigned_2.getDigits().size() == 1 && big_unsigned_2.getDigits()[0] == 0) || (big_unsigned_2.getDigits().empty())) {
+      throw BigNumberDivisionByZero();
+    } else if (big_unsigned_2.getDigits().size() == 1 && (big_unsigned_2.getDigits()[0] == 1)) {
+      return big_unsigned_1; 
+    } else if ((big_unsigned_1.getDigits().size() == 1 && big_unsigned_1.getDigits()[0] == 0) || (big_unsigned_1.getDigits().empty())) {
+      temp_num.AddDigit(0);
+      return temp_num;
+    }
 
-  if ((big_unsigned_2.getDigits().size() == 1 && big_unsigned_2.getDigits()[0] == 0) || (big_unsigned_1.getDigits().size() == 1 && big_unsigned_1.getDigits()[0] == 0) || (big_unsigned_1.getDigits().empty()) || (big_unsigned_2.getDigits().empty())) {
+    temp_num.Clear();
+    BigUnsigned<Base> counter;
+    temp_num = big_unsigned_1;
+    
+    while (temp_num >= big_unsigned_2) {
+      temp_num = temp_num - big_unsigned_2;
+      ++counter; 
+    }
+
+    return counter;
+  } catch(const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
     temp_num.AddDigit(0);
     return temp_num;
-  } else if (big_unsigned_2.getDigits().size() == 1 && (big_unsigned_2.getDigits()[0] == 1)) {
-    return big_unsigned_1; 
   }
-
-  temp_num.Clear();
-  BigUnsigned<Base> counter;
-  temp_num = big_unsigned_1;
-  
-  while (temp_num >= big_unsigned_2) {
-    temp_num = temp_num - big_unsigned_2;
-    ++counter; 
-  }
-
-  return counter;
 }
 
 

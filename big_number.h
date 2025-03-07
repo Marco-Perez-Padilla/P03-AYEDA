@@ -61,22 +61,24 @@ template <unsigned char Base> class BigNumber {
  */
 template <unsigned char Base> BigNumber<Base>* BigNumber<Base>::create(const char* str) {
   std::string input(str);
-    
-  if (input.back() == 'u') {
-    input.pop_back(); // Remove it
-    return new BigUnsigned<Base>(input); // Create a BigUnsigned
-  } 
-  else if (input.back() == 'i') {
-    input.pop_back(); // Remove it
-    return new BigInteger<Base>(input); // Create a BigInteger
-  } 
-  else if (input.back() == 'r') {
-    input.pop_back(); // Remove it
-    return new BigRational<Base>(input); // Create a BigRational
+  try {
+    if (input.back() == 'u') {
+      input.pop_back(); // Remove it
+      return new BigUnsigned<Base>(input); // Create a BigUnsigned
+    } 
+    else if (input.back() == 'i') {
+      input.pop_back(); // Remove it
+      return new BigInteger<Base>(input); // Create a BigInteger
+    } 
+    else if (input.back() == 'r') {
+      input.pop_back(); // Remove it
+      return new BigRational<Base>(input); // Create a BigRational
+    }
+    throw BigNumberNotRecognized(input.back());
+  } catch (const BigNumberNotRecognized& error) {
+    std::cerr << error.what() << std::endl;
+    return nullptr;
   }
-
-  
-  BigNumberNotRecognized(input.back());
 }
 
 
