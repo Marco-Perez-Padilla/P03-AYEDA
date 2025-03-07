@@ -4,24 +4,19 @@
 ** Grado en Ingenieria Informatica
 ** Asignatura: Algoritmos y Estructuras de Datos Avanzadas
 ** Curso: 2º
-** Practica 1: Representación de números grandes
+** Practica 3: Calculadora para números grandes
 ** Autor: Marco Pérez Padilla
 ** Correo: alu0101469348@ull.edu.es
-** Fecha: 05/02/2025
+** Fecha: 06/03/2025
 
-** Archivo big_integer.h: Declaracion e implementacion de la plantilla para representar numeros enteros grandes en cualquier base
+** Archivo big_number.h: Declaracion e implementacion de la plantilla para representar numeros enteros grandes en cualquier base
 **
 ** Referencias:
 **      Enlaces de interes
 
 ** Historial de revisiones:
-**      05/02/2025 - Creacion (primera version) del codigo
-**      11/02/2025 - Finalizacion de la primera version del codigo
-**      21/02/2025 - Inicio de segunda version del codigo. Adaptación a plantillas
-**      24/02/2025 - Creación de la especificación para la base dos
-**      24/02/2025 - Creacion de constructores y operadores =, << y >> para la base dos
-**      25/02/2025 - Creacion del resto de operadores y metodos para la base dos
-**      25/02/2025 - Adicion del constructor de cambio de tipo de BigUnsigned<2> a BigInteger<2>
+**      06/03/2025 - Creacion (primera version) del codigo
+
 **/
 
 #ifndef BIG_NUMBER_H

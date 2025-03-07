@@ -4,7 +4,7 @@
 ** Grado en Ingenieria Informatica
 ** Asignatura: Algoritmos y Estructuras de Datos Avanzadas
 ** Curso: 2º
-** Practica 1: Representación de números grandes
+** Practica 3: Calculadora para números grandes
 ** Autor: Marco Pérez Padilla
 ** Correo: alu0101469348@ull.edu.es
 ** Fecha: 05/02/2025
