@@ -20,6 +20,7 @@
 **      26/02/2025 - Creacion del resto de metodos para operar con ellos
 **      06/03/2025 - Adaptacion del codigo para usar la clase abstracta BigNumber (big_number.h)
 **      07/03/2025 - Creacion de la especializacion para base 2 para arreglar errores al adaptar al uso de BigNumber
+**      07/03/2025 - Adicion de manejo de excepciones
 **/
 
 
@@ -33,46 +34,44 @@
 #include "big_integer.h"
 
 
+/**
+ * @brief Specialization of BigRational for the base 2
+ */
 template<> class BigRational<2> : public BigNumber<2> {
-  private:
-   BigInteger<2> numerator_;
-   BigInteger<2> denominator_;; 
-  public:
-   // Constructors
-   BigRational(const BigInteger<2>& numerator = 0, const BigInteger<2>& denominator = 1) : numerator_(numerator), denominator_(denominator) {};
-   // Getters
-   const BigInteger<2> getNumerator() const {return numerator_;}
-   const BigInteger<2> getDenominator() const {return denominator_;}
-   // Setters
-   void setNumerator(const BigInteger<2>& numerator) {numerator_ = numerator;}
-   void setDenominator(const BigInteger<2>& denominator) {denominator_ = denominator;}
-   // Assignation operator 
-   BigRational<2>& operator=(const BigRational<2>&);
-   // Insertion and extraction operators
-   std::ostream& write (std::ostream&) const override;
-   std::istream& read (std::istream&) override;
-   // Comparation operators
-    friend bool operator< (const BigRational<2>&, const BigRational<2>&);
-   // Arithmetic operators 
-    friend BigRational<2> operator+ (const BigRational<2>&, const BigRational<2>&);
-   BigRational<2> operator-(const BigRational<2>&) const;
-   BigRational<2> operator*(const BigRational<2>&) const;
-    friend BigRational<2> operator/ (const BigRational<2>&, const BigRational<2>&);
- 
- 
-   BigNumber<2>& add(const BigNumber<2>&) const override;
-   BigNumber<2>& subtract(const BigNumber<2>&) const override;
-   BigNumber<2>& multiply(const BigNumber<2>&) const override;
-   BigNumber<2>& divide(const BigNumber<2>&) const override;
- 
- 
- 
+ private:
+  BigInteger<2> numerator_;
+  BigInteger<2> denominator_;; 
+ public:
+  // Constructors
+  BigRational(const BigInteger<2>& numerator = 0, const BigInteger<2>& denominator = 1) : numerator_(numerator), denominator_(denominator) {};
+  // Getters
+  const BigInteger<2> getNumerator() const {return numerator_;}
+  const BigInteger<2> getDenominator() const {return denominator_;}
+  // Setters
+  void setNumerator(const BigInteger<2>& numerator) {numerator_ = numerator;}
+  void setDenominator(const BigInteger<2>& denominator) {denominator_ = denominator;}
+  // Assignation operator 
+  BigRational<2>& operator=(const BigRational<2>&);
+  // Insertion and extraction operators
+  std::ostream& write (std::ostream&) const override;
+  std::istream& read (std::istream&) override;
+  // Comparation operators
+  friend bool operator< (const BigRational<2>&, const BigRational<2>&);
+  // Arithmetic operators 
+  friend BigRational<2> operator+ (const BigRational<2>&, const BigRational<2>&);
+  BigRational<2> operator-(const BigRational<2>&) const;
+  BigRational<2> operator*(const BigRational<2>&) const;
+  friend BigRational<2> operator/ (const BigRational<2>&, const BigRational<2>&);
+  // Virtual methods to override
+  BigNumber<2>& add(const BigNumber<2>&) const override;
+  BigNumber<2>& subtract(const BigNumber<2>&) const override;
+  BigNumber<2>& multiply(const BigNumber<2>&) const override;
+  BigNumber<2>& divide(const BigNumber<2>&) const override;
+  // Virtual change-type operators to override 
    operator BigUnsigned<2>() const override;
    operator BigInteger<2>() const override;
    operator BigRational<2>() const override;
  };
- 
- 
  
  
  /**
@@ -106,7 +105,6 @@ template<> class BigRational<2> : public BigNumber<2> {
  }
  
  
- 
  /**
   * @brief Overload of >> operator. It requieres a line with format: numerator / denominator
   * @param istream
@@ -116,32 +114,40 @@ template<> class BigRational<2> : public BigNumber<2> {
   std::istream& BigRational<2>::read(std::istream& is) {
    BigInteger<2> numerator;
    BigInteger<2> denominator;
- 
-   // Getting the numerator
-   is >> numerator;
- 
-   // Skipping the slash in the line ('/')
-   char caracter;
-   is >> caracter;
-   if (caracter != '/') {
-     std::cerr << "Error: Incorrect format.It must be 'numerator / denominator'\n";
-     exit(EXIT_FAILURE);
-   }
-   
-   // Getting the denominator
-   is >> denominator;
- 
-   // Checking that the denominator is not 0
-   if (denominator == BigInteger<2>(0)) {
-     std::cerr << "Error: Denominator cannot be 0\n";
-     exit(EXIT_FAILURE);
-   } 
- 
-   // Setting the number
-   setDenominator(denominator);
-   setNumerator(numerator);
- 
-   return is;
+   try {
+    // Getting the numerator
+    is >> numerator;
+  
+    // Skipping the slash in the line ('/')
+    char caracter;
+    is >> caracter;
+    if (caracter != '/') {
+      throw BigNumberRationalFormat();
+    }
+    
+    // Getting the denominator
+    is >> denominator;
+  
+    // Checking that the denominator is not 0
+    if (denominator == BigInteger<2>(0)) {
+      throw BigNumberDivisionByZero();
+    } 
+  
+    // Setting the number
+    setDenominator(denominator);
+    setNumerator(numerator);
+  
+    return is;
+  } catch (const BigNumberRationalFormat& error) {
+    std::cerr << error.what() << std::endl;
+    return is;
+  } catch (const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    return is;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    return is;
+  }
  }
  
  
@@ -199,24 +205,43 @@ template<> class BigRational<2> : public BigNumber<2> {
   BigRational<2> operator+(const BigRational<2>& big_rational_1, const BigRational<2>& big_rational_2) {
    BigInteger<2> numerador;
    BigInteger<2> denominador;
- 
-   if (big_rational_1.getDenominator() == big_rational_2.getDenominator()) {
-     denominador = big_rational_1.getDenominator();
-     numerador = big_rational_1.getNumerator() + big_rational_2.getNumerator();
-     BigInteger<2> factor = numerador.mcd(denominador, numerador);
-     denominador = denominador / factor;
-     numerador = numerador / factor;
-     BigRational<2> result (numerador, denominador);
-     return result;
-   } else {
-     denominador = big_rational_1.getDenominator() * big_rational_2.getDenominator();
-     numerador = (big_rational_1.getNumerator() * big_rational_2.getDenominator()) + (big_rational_2.getNumerator() * big_rational_1.getDenominator());
-     BigInteger<2> factor = numerador.mcd(denominador, numerador);
-     denominador = denominador / factor;
-     numerador = numerador / factor;
-     BigRational<2> result (numerador, denominador);
-     return result;
-   }
+   try {
+    if (big_rational_1.getDenominator() == big_rational_2.getDenominator()) {
+      denominador = big_rational_1.getDenominator();
+      numerador = big_rational_1.getNumerator() + big_rational_2.getNumerator();
+      BigInteger<2> factor = numerador.mcd(denominador, numerador);
+      denominador = denominador / factor;
+      if (denominador == BigInteger<2>()) {
+        throw BigNumberDivisionByZero();
+      }
+      numerador = numerador / factor;
+      BigRational<2> result (numerador, denominador);
+      return result;
+    } else {
+      denominador = big_rational_1.getDenominator() * big_rational_2.getDenominator();
+      numerador = (big_rational_1.getNumerator() * big_rational_2.getDenominator()) + (big_rational_2.getNumerator() * big_rational_1.getDenominator());
+      BigInteger<2> factor = numerador.mcd(denominador, numerador);
+      denominador = denominador / factor;
+      if (denominador == BigInteger<2>()) {
+        throw BigNumberDivisionByZero();
+      }
+      numerador = numerador / factor;
+      BigRational<2> result (numerador, denominador);
+      return result;
+    }
+  } catch (const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    numerador = BigInteger<2>();
+    denominador = BigInteger<2>(1);
+    BigRational<2> result (numerador, denominador);
+    return result;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    numerador = BigInteger<2>();
+    denominador = BigInteger<2>(1);
+    BigRational<2> result (numerador, denominador);
+    return result;
+  }
  }
  
  
@@ -229,24 +254,43 @@ template<> class BigRational<2> : public BigNumber<2> {
   BigRational<2> BigRational<2>::operator-(const BigRational<2>& big_rational_2) const {
    BigInteger<2> numerador;
    BigInteger<2> denominador;
- 
-   if (denominator_ == big_rational_2.getDenominator()) {
-     denominador = denominator_;
-     numerador = numerator_ - big_rational_2.getNumerator();
-     BigInteger<2> factor = numerador.mcd(denominador, numerador);
-     denominador = denominador / factor;
-     numerador = numerador / factor;
-     BigRational<2> result (numerador, denominador);
-     return result;
-   } else {
-     denominador = denominator_ * big_rational_2.getDenominator();
-     numerador = (numerator_ * big_rational_2.getDenominator()) - (big_rational_2.getNumerator() * denominator_);
-     BigInteger<2> factor = numerador.mcd(denominador, numerador);
-     denominador = denominador / factor;
-     numerador = numerador / factor;
-     BigRational<2> result (numerador, denominador);
-     return result;
-   }
+   try {
+    if (denominator_ == big_rational_2.getDenominator()) {
+      denominador = denominator_;
+      numerador = numerator_ - big_rational_2.getNumerator();
+      BigInteger<2> factor = numerador.mcd(denominador, numerador);
+      denominador = denominador / factor;
+      if (denominador == BigInteger<2>()) {
+        throw BigNumberDivisionByZero();
+      }
+      numerador = numerador / factor;
+      BigRational<2> result (numerador, denominador);
+      return result;
+    } else {
+      denominador = denominator_ * big_rational_2.getDenominator();
+      numerador = (numerator_ * big_rational_2.getDenominator()) - (big_rational_2.getNumerator() * denominator_);
+      BigInteger<2> factor = numerador.mcd(denominador, numerador);
+      denominador = denominador / factor;
+      if (denominador == BigInteger<2>()) {
+        throw BigNumberDivisionByZero();
+      }
+      numerador = numerador / factor;
+      BigRational<2> result (numerador, denominador);
+      return result;
+    }
+  } catch (const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    numerador = BigInteger<2>();
+    denominador = BigInteger<2>(1);
+    BigRational<2> result (numerador, denominador);
+    return result;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    numerador = BigInteger<2>();
+    denominador = BigInteger<2>(1);
+    BigRational<2> result (numerador, denominador);
+    return result;
+  }
  }
  
  
@@ -259,15 +303,30 @@ template<> class BigRational<2> : public BigNumber<2> {
   BigRational<2> BigRational<2>::operator*(const BigRational<2>& mult) const {
    BigInteger<2> numerador;
    BigInteger<2> denominador;
- 
-   numerador = numerator_ * mult.getNumerator();
-   denominador = denominator_ * mult.getDenominator();
- 
-   BigInteger<2> factor = numerador.mcd(denominador, numerador);
-   denominador = denominador / factor;
-   numerador = numerador / factor;
-   BigRational<2> result (numerador, denominador);
-   return result;
+   try {
+    numerador = numerator_ * mult.getNumerator();
+    denominador = denominator_ * mult.getDenominator();
+    if (denominador == BigInteger<2>()) {
+      throw BigNumberDivisionByZero();
+    }
+    BigInteger<2> factor = numerador.mcd(denominador, numerador);
+    denominador = denominador / factor;
+    numerador = numerador / factor;
+    BigRational<2> result (numerador, denominador);
+    return result;
+   } catch (const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    numerador = BigInteger<2>();
+    denominador = BigInteger<2>(1);
+    BigRational<2> result (numerador, denominador);
+    return result;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    numerador = BigInteger<2>();
+    denominador = BigInteger<2>(1);
+    BigRational<2> result (numerador, denominador);
+    return result;
+  }
  }
  
  
@@ -280,28 +339,51 @@ template<> class BigRational<2> : public BigNumber<2> {
   BigRational<2> operator/ (const BigRational<2>& big_rational_1, const BigRational<2>& big_rational_2) {
    BigInteger<2> numerador;
    BigInteger<2> denominador;
- 
-   numerador = big_rational_1.getNumerator() * big_rational_2.getDenominator();
-   denominador = big_rational_2.getNumerator() * big_rational_1.getDenominator();
- 
-   BigInteger<2> factor = numerador.mcd(denominador, numerador);
-   denominador = denominador / factor;
-   numerador = numerador / factor;
-   BigRational<2> result (numerador, denominador);
-   return result;
+   try {
+    numerador = big_rational_1.getNumerator() * big_rational_2.getDenominator();
+    denominador = big_rational_2.getNumerator() * big_rational_1.getDenominator();
+  
+    BigInteger<2> factor = numerador.mcd(denominador, numerador);
+    denominador = denominador / factor;
+    if (denominador == BigInteger<2>()) {
+      throw BigNumberDivisionByZero();
+    }
+    numerador = numerador / factor;
+    BigRational<2> result (numerador, denominador);
+    return result;
+  } catch (const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    numerador = BigInteger<2>();
+    denominador = BigInteger<2>(1);
+    BigRational<2> result (numerador, denominador);
+    return result;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    numerador = BigInteger<2>();
+    denominador = BigInteger<2>(1);
+    BigRational<2> result (numerador, denominador);
+    return result;
+  }
  }
  
  
- 
- 
+/**
+ * @brief Overriding of add method, allocating the result in dynamic memory
+ * @param BigNumber<2> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<2> result of the sum
+ */
   BigNumber<2>& BigRational<2>::add(const BigNumber<2>& other) const {
    const BigRational<2>& other_integer = dynamic_cast<const BigRational<2>&>(other);
    BigRational<2>* result = new BigRational<2>(*this + other_integer);
    return *result;
  }
  
- 
- 
+
+/**
+ * @brief Overriding of subtract method, allocating the result in dynamic memory
+ * @param BigNumber<2> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<2> result of the rest
+ */
   BigNumber<2>& BigRational<2>::subtract(const BigNumber<2>& other) const {
    const BigRational<2>& other_integer = dynamic_cast<const BigRational<2>&>(other);
    BigRational<2>* result = new BigRational<2>(*this - other_integer);
@@ -309,6 +391,11 @@ template<> class BigRational<2> : public BigNumber<2> {
  }
  
  
+/**
+ * @brief Overriding of multiply method, allocating the result in dynamic memory
+ * @param BigNumber<2> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<2> result of the multiplication
+ */
   BigNumber<2>& BigRational<2>::multiply(const BigNumber<2>& other) const {
    const BigRational<2>& other_integer = dynamic_cast<const BigRational<2>&>(other);
    BigRational<2>* result = new BigRational<2>(*this * other_integer);
@@ -316,6 +403,11 @@ template<> class BigRational<2> : public BigNumber<2> {
  }
  
  
+/**
+ * @brief Overriding of divide method, allocating the result in dynamic memory
+ * @param BigNumber<2> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<2> result of the divition
+ */
   BigNumber<2>& BigRational<2>::divide(const BigNumber<2>& other) const {
    const BigRational<2>& other_integer = dynamic_cast<const BigRational<2>&>(other);
    BigRational<2>* result = new BigRational<2>(*this / other_integer);
@@ -323,8 +415,10 @@ template<> class BigRational<2> : public BigNumber<2> {
  }
  
  
- 
- 
+/**
+ * @brief Operator to change type to BigUnsigned
+ * @return Equivalent BigUnsigned<2>
+ */
   BigRational<2>::operator BigUnsigned<2>() const {
    BigInteger<2> div = numerator_/denominator_;
 
@@ -333,7 +427,6 @@ template<> class BigRational<2> : public BigNumber<2> {
      binary_string += (bit ? '1' : '0');
    }
  
-   // Convertir la cadena binaria a un array de unsigned char para el constructor de BigUnsigned<2>
    std::vector<unsigned char> binary_chars;
    for (char c : binary_string) {
      binary_chars.push_back(static_cast<unsigned char>(c));
@@ -343,19 +436,33 @@ template<> class BigRational<2> : public BigNumber<2> {
    
  }
  
-  BigRational<2>::operator BigInteger<2>() const {
-   BigInteger<2> div = numerator_/denominator_;
-   return div;
- }
+
+/**
+ * @brief Operator to change type to BigInteger
+ * @return Equivalent BigInteger
+ */
+BigRational<2>::operator BigInteger<2>() const {
+  BigInteger<2> div = numerator_/denominator_;
+  return div;
+}
  
  
-  BigRational<2>::operator BigRational<2>() const {
-   return *this;
- }
+/**
+ * @brief Operator to change type to BigRational
+ * @return Equivalent to BigRational (itself)
+ */
+BigRational<2>::operator BigRational<2>() const {
+  return *this;
+}
 
 
- BigInteger<2>::operator BigRational<2>() const {
-  return BigRational<2>(*this);
+/**
+ * @brief Operator of the class BigInteger<2> to change type to BigRational
+ * @return Equivalent to BigRational
+ */
+BigInteger<2>::operator BigRational<2>() const {
+  BigInteger<2> denominador (1);
+  return BigRational<2>(*this, denominador);
 }
 
 
@@ -388,15 +495,12 @@ template <unsigned char Base = 10> class BigRational {
   BigRational<Base> operator-(const BigRational<Base>&) const;
   BigRational<Base> operator*(const BigRational<Base>&) const;
   template <unsigned char B> friend BigRational<Base> operator/ (const BigRational<Base>&, const BigRational<Base>&);
-
-
+  // Virtual methods to override
   BigNumber<Base>& add(const BigNumber<Base>&) const override;
   BigNumber<Base>& subtract(const BigNumber<Base>&) const override;
   BigNumber<Base>& multiply(const BigNumber<Base>&) const override;
   BigNumber<Base>& divide(const BigNumber<Base>&) const override;
-
-
-
+  // Virtual change-type operators to override
   operator BigUnsigned<Base>() const override;
   operator BigInteger<Base>() const override;
   operator BigRational<Base>() const override;
@@ -434,7 +538,6 @@ template <unsigned char Base> std::ostream& BigRational<Base>::write(std::ostrea
 }
 
 
-
 /**
  * @brief Overload of >> operator. It requieres a line with format: numerator / denominator
  * @param istream
@@ -444,32 +547,40 @@ template <unsigned char Base> std::ostream& BigRational<Base>::write(std::ostrea
 template <unsigned char Base> std::istream& BigRational<Base>::read(std::istream& is) {
   BigInteger<Base> numerator;
   BigInteger<Base> denominator;
-
-  // Getting the numerator
-  is >> numerator;
-
-  // Skipping the slash in the line ('/')
-  char caracter;
-  is >> caracter;
-  if (caracter != '/') {
-    std::cerr << "Error: Incorrect format.It must be 'numerator / denominator'\n";
-    exit(EXIT_FAILURE);
-  }
+  try {
+    // Getting the numerator
+    is >> numerator;
   
-  // Getting the denominator
-  is >> denominator;
-
-  // Checking that the denominator is not 0
-  if (denominator == BigInteger<Base>(0)) {
-    std::cerr << "Error: Denominator cannot be 0\n";
-    exit(EXIT_FAILURE);
-  } 
-
-  // Setting the number
-  setDenominator(denominator);
-  setNumerator(numerator);
-
-  return is;
+    // Skipping the slash in the line ('/')
+    char caracter;
+    is >> caracter;
+    if (caracter != '/') {
+      throw BigNumberRationalFormat();
+    }
+    
+    // Getting the denominator
+    is >> denominator;
+  
+    // Checking that the denominator is not 0
+    if (denominator == BigInteger<Base>(0)) {
+      throw BigNumberDivisionByZero();
+    } 
+  
+    // Setting the number
+    setDenominator(denominator);
+    setNumerator(numerator);
+  
+    return is;
+  } catch (const BigNumberRationalFormat& error) {
+    std::cerr << error.what() << std::endl;
+    return is;
+  } catch (const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    return is;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    return is;
+  }
 }
 
 
@@ -527,21 +638,40 @@ template <unsigned char Base> bool operator>=(const BigRational<Base>& big_ratio
 template <unsigned char Base> BigRational<Base> operator+(const BigRational<Base>& big_rational_1, const BigRational<Base>& big_rational_2) {
   BigInteger<Base> numerador;
   BigInteger<Base> denominador;
-
-  if (big_rational_1.getDenominator() == big_rational_2.getDenominator()) {
-    denominador = big_rational_1.getDenominator();
-    numerador = big_rational_1.getNumerator() + big_rational_2.getNumerator();
-    BigInteger<Base> factor = numerador.mcd(denominador, numerador);
-    denominador = denominador / factor;
-    numerador = numerador / factor;
+  try {
+    if (big_rational_1.getDenominator() == big_rational_2.getDenominator()) {
+      denominador = big_rational_1.getDenominator();
+      numerador = big_rational_1.getNumerator() + big_rational_2.getNumerator();
+      BigInteger<Base> factor = numerador.mcd(denominador, numerador);
+      denominador = denominador / factor;
+      if (denominador == BigInteger<Base>()) {
+        throw BigNumberDivisionByZero();
+      }
+      numerador = numerador / factor;
+      BigRational<Base> result (numerador, denominador);
+      return result;
+    } else {
+      denominador = big_rational_1.getDenominator() * big_rational_2.getDenominator();
+      numerador = (big_rational_1.getNumerator() * big_rational_2.getDenominator()) + (big_rational_2.getNumerator() * big_rational_1.getDenominator());
+      BigInteger<Base> factor = numerador.mcd(denominador, numerador);
+      denominador = denominador / factor;
+      if (denominador == BigInteger<Base>()) {
+        throw BigNumberDivisionByZero();
+      }
+      numerador = numerador / factor;
+      BigRational<Base> result (numerador, denominador);
+      return result;
+    }
+  } catch (const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    numerador = BigInteger<Base>();
+    denominador = BigInteger<Base>(1);
     BigRational<Base> result (numerador, denominador);
     return result;
-  } else {
-    denominador = big_rational_1.getDenominator() * big_rational_2.getDenominator();
-    numerador = (big_rational_1.getNumerator() * big_rational_2.getDenominator()) + (big_rational_2.getNumerator() * big_rational_1.getDenominator());
-    BigInteger<Base> factor = numerador.mcd(denominador, numerador);
-    denominador = denominador / factor;
-    numerador = numerador / factor;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    numerador = BigInteger<Base>();
+    denominador = BigInteger<Base>(1);
     BigRational<Base> result (numerador, denominador);
     return result;
   }
@@ -558,20 +688,40 @@ template <unsigned char Base> BigRational<Base> BigRational<Base>::operator-(con
   BigInteger<Base> numerador;
   BigInteger<Base> denominador;
 
-  if (denominator_ == big_rational_2.getDenominator()) {
-    denominador = denominator_;
-    numerador = numerator_ - big_rational_2.getNumerator();
-    BigInteger<Base> factor = numerador.mcd(denominador, numerador);
-    denominador = denominador / factor;
-    numerador = numerador / factor;
+  try {
+    if (denominator_ == big_rational_2.getDenominator()) {
+      denominador = denominator_;
+      numerador = numerator_ - big_rational_2.getNumerator();
+      BigInteger<Base> factor = numerador.mcd(denominador, numerador);
+      denominador = denominador / factor;
+      if (denominador == BigInteger<Base>()) {
+        throw BigNumberDivisionByZero();
+      }
+      numerador = numerador / factor;
+      BigRational<Base> result (numerador, denominador);
+      return result;
+    } else {
+      denominador = denominator_ * big_rational_2.getDenominator();
+      numerador = (numerator_ * big_rational_2.getDenominator()) - (big_rational_2.getNumerator() * denominator_);
+      BigInteger<Base> factor = numerador.mcd(denominador, numerador);
+      denominador = denominador / factor;
+      if (denominador == BigInteger<Base>()) {
+        throw BigNumberDivisionByZero();
+      }
+      numerador = numerador / factor;
+      BigRational<Base> result (numerador, denominador);
+      return result;
+    }
+  } catch (const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    numerador = BigInteger<Base>();
+    denominador = BigInteger<Base>(1);
     BigRational<Base> result (numerador, denominador);
     return result;
-  } else {
-    denominador = denominator_ * big_rational_2.getDenominator();
-    numerador = (numerator_ * big_rational_2.getDenominator()) - (big_rational_2.getNumerator() * denominator_);
-    BigInteger<Base> factor = numerador.mcd(denominador, numerador);
-    denominador = denominador / factor;
-    numerador = numerador / factor;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    numerador = BigInteger<Base>();
+    denominador = BigInteger<Base>(1);
     BigRational<Base> result (numerador, denominador);
     return result;
   }
@@ -588,14 +738,30 @@ template <unsigned char Base> BigRational<Base> BigRational<Base>::operator*(con
   BigInteger<Base> numerador;
   BigInteger<Base> denominador;
 
-  numerador = numerator_ * mult.getNumerator();
-  denominador = denominator_ * mult.getDenominator();
-
-  BigInteger<Base> factor = numerador.mcd(denominador, numerador);
-  denominador = denominador / factor;
-  numerador = numerador / factor;
-  BigRational<Base> result (numerador, denominador);
-  return result;
+  try {
+    numerador = numerator_ * mult.getNumerator();
+    denominador = denominator_ * mult.getDenominator();
+    if (denominador == BigInteger<Base>()) {
+      throw BigNumberDivisionByZero();
+    }
+    BigInteger<Base> factor = numerador.mcd(denominador, numerador);
+    denominador = denominador / factor;
+    numerador = numerador / factor;
+    BigRational<Base> result (numerador, denominador);
+    return result;
+  } catch (const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    numerador = BigInteger<Base>();
+    denominador = BigInteger<Base>(1);
+    BigRational<Base> result (numerador, denominador);
+    return result;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    numerador = BigInteger<Base>();
+    denominador = BigInteger<Base>(1);
+    BigRational<Base> result (numerador, denominador);
+    return result;
+  }
 }
 
 
@@ -609,19 +775,38 @@ template <unsigned char Base> BigRational<Base> operator/ (const BigRational<Bas
   BigInteger<Base> numerador;
   BigInteger<Base> denominador;
 
-  numerador = big_rational_1.getNumerator() * big_rational_2.getDenominator();
-  denominador = big_rational_2.getNumerator() * big_rational_1.getDenominator();
-
-  BigInteger<Base> factor = numerador.mcd(denominador, numerador);
-  denominador = denominador / factor;
-  numerador = numerador / factor;
-  BigRational<Base> result (numerador, denominador);
-  return result;
+  try {
+    numerador = big_rational_1.getNumerator() * big_rational_2.getDenominator();
+    denominador = big_rational_2.getNumerator() * big_rational_1.getDenominator();
+    BigInteger<Base> factor = numerador.mcd(denominador, numerador);
+    denominador = denominador / factor;
+    if (denominador == BigInteger<Base>()) {
+      throw BigNumberDivisionByZero();
+    }
+    numerador = numerador / factor;
+    BigRational<Base> result (numerador, denominador);
+    return result;
+  } catch (const BigNumberDivisionByZero& error) {
+    std::cerr << error.what() << std::endl;
+    numerador = BigInteger<Base>();
+    denominador = BigInteger<Base>(1);
+    BigRational<Base> result (numerador, denominador);
+    return result;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    numerador = BigInteger<Base>();
+    denominador = BigInteger<Base>(1);
+    BigRational<Base> result (numerador, denominador);
+    return result;
+  }
 }
 
 
-
-
+/**
+ * @brief Overriding of add method, allocating the result in dynamic memory
+ * @param BigNumber<Base> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<Base> result of the sum
+ */
 template <unsigned char Base> BigNumber<Base>& BigRational<Base>::add(const BigNumber<Base>& other) const {
   const BigRational<Base>& other_integer = dynamic_cast<const BigRational<Base>&>(other);
   BigRational<Base>* result = new BigRational<Base>(*this + other_integer);
@@ -629,7 +814,11 @@ template <unsigned char Base> BigNumber<Base>& BigRational<Base>::add(const BigN
 }
 
 
-
+/**
+ * @brief Overriding of subtract method, allocating the result in dynamic memory
+ * @param BigNumber<Base> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<Base> result of the rest
+ */
 template <unsigned char Base> BigNumber<Base>& BigRational<Base>::subtract(const BigNumber<Base>& other) const {
   const BigRational<Base>& other_integer = dynamic_cast<const BigRational<Base>&>(other);
   BigRational<Base>* result = new BigRational<Base>(*this - other_integer);
@@ -637,6 +826,11 @@ template <unsigned char Base> BigNumber<Base>& BigRational<Base>::subtract(const
 }
 
 
+/**
+ * @brief Overriding of multiply method, allocating the result in dynamic memory
+ * @param BigNumber<Base> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<Base> result of the multiplication
+ */
 template <unsigned char Base> BigNumber<Base>& BigRational<Base>::multiply(const BigNumber<Base>& other) const {
   const BigRational<Base>& other_integer = dynamic_cast<const BigRational<Base>&>(other);
   BigRational<Base>* result = new BigRational<Base>(*this * other_integer);
@@ -644,6 +838,11 @@ template <unsigned char Base> BigNumber<Base>& BigRational<Base>::multiply(const
 }
 
 
+/**
+ * @brief Overriding of divide method, allocating the result in dynamic memory
+ * @param BigNumber<Base> BigUnsigned, BigInteger or BigRational
+ * @return BigNumber<Base> result of the division
+ */
 template <unsigned char Base> BigNumber<Base>& BigRational<Base>::divide(const BigNumber<Base>& other) const {
   const BigRational<Base>& other_integer = dynamic_cast<const BigRational<Base>&>(other);
   BigRational<Base>* result = new BigRational<Base>(*this / other_integer);
@@ -651,19 +850,30 @@ template <unsigned char Base> BigNumber<Base>& BigRational<Base>::divide(const B
 }
 
 
-
-
+/**
+ * @brief Operator to change type to BigUnsigned
+ * @return Equivalent BigUnsigned
+ */
 template <unsigned char Base> BigRational<Base>::operator BigUnsigned<Base>() const {
   BigInteger<Base> div = numerator_/denominator_;
   return div.getModule();
 }
 
+
+/**
+ * @brief Operator to change type to BigInteger
+ * @return Equivalent BigInteger
+ */
 template <unsigned char Base> BigRational<Base>::operator BigInteger<Base>() const {
   BigInteger<Base> div = numerator_/denominator_;
   return div;
 }
 
 
+/**
+ * @brief Operator to change type to BigRational
+ * @return Equivalent BigRational (itself)
+ */
 template <unsigned char Base> BigRational<Base>::operator BigRational<Base>() const {
   return *this;
 }

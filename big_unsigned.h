@@ -137,6 +137,8 @@ template <unsigned char Base> BigUnsigned<Base>::BigUnsigned(const unsigned char
     }
   } catch (const BigNumberBadDigit& error) {
     std::cerr << error.what() << std::endl;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
   }
 }
 
@@ -665,6 +667,10 @@ template <unsigned char Base> BigUnsigned<Base> BigUnsigned<Base>::operator%(con
     std::cerr << error.what() << std::endl;
     temp_num.AddDigit(0);
     return temp_num;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    temp_num.AddDigit(0);
+    return temp_num;
   }
 }
 
@@ -699,6 +705,10 @@ template <unsigned char Base> BigUnsigned<Base> operator/(const BigUnsigned<Base
     return counter;
   } catch(const BigNumberDivisionByZero& error) {
     std::cerr << error.what() << std::endl;
+    temp_num.AddDigit(0);
+    return temp_num;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
     temp_num.AddDigit(0);
     return temp_num;
   }
@@ -755,7 +765,7 @@ template <unsigned char Base> BigNumber<Base>& BigUnsigned<Base>::divide(const B
 
 /**
  * @brief Operator to change type to BigUnsigned
- * @return Equivalent BigUnsigned
+ * @return Equivalent BigUnsigned (itself)
  */
 template <unsigned char Base> BigUnsigned<Base>::operator BigUnsigned<Base>() const {
   return *this;
@@ -776,8 +786,9 @@ template <unsigned char Base> BigUnsigned<Base>::operator BigInteger<Base>() con
  * @return Equivalent BigRational
  */
 template <unsigned char Base> BigUnsigned<Base>::operator BigRational<Base>() const {
-  BigInteger<Base> big_int = BigInteger<Base>(*this);; 
-  return BigRational<Base>(big_int);
+  BigInteger<Base> big_int = BigInteger<Base>(*this);
+  BigInteger<Base> denominador (1);  
+  return BigRational<Base>(big_int, denominador);
 }
 
 #endif

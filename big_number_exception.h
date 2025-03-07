@@ -16,7 +16,7 @@
 
 ** Historial de revisiones:
 **      07/03/2025 - Creacion (primera version) del codigo
-
+**      07/03/2025 - Adicion de excepcion para formato de racional incorrecto
 **/
 
 #ifndef BIG_NUMBER_EXCEPTION_H
@@ -62,6 +62,15 @@ class BigNumberNotRecognized : public BigNumberException {
 class BigNumberDivisionByZero : public BigNumberException {
  public:
   BigNumberDivisionByZero() : BigNumberException("Error: Division by cero") {}
+};
+
+
+/**
+ * @brief Class BigNumberDivisionByZero. Throws an expection if there is a division by zero
+ */
+class BigNumberRationalFormat : public BigNumberException {
+ public:
+  BigNumberRationalFormat() : BigNumberException("Error: Incorrect format.It must be 'numerator / denominator'") {}
 };
 
 

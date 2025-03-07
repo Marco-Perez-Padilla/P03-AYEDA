@@ -24,6 +24,7 @@
 **      25/02/2025 - Adicion del constructor de cambio de tipo de BigUnsigned<2> a BigInteger<2>
 **      06/03/2025 - Adaptacion de la plantilla para usar la clase abstracta BigNumber (big_number.h)
 **      06/03/2025 - Adaptacion de la especializacion en base 2 para usar la clase abstracta BigNumber (big_number.h)
+**      07/03/2025 - Adicion de manejo de excepciones
 **/
 
 
@@ -160,6 +161,8 @@ template<> class BigInteger<2> : public BigNumber<2> {
     }
   } catch (const BigNumberBadDigit& error) {
     std::cerr << error.what() << std::endl;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
   }
  }
  
@@ -255,6 +258,9 @@ std::istream& BigInteger<2>::read(std::istream& is) {
     return is;
   } catch (const BigNumberBadDigit& error) {
     std::cerr << error.what() << std::endl;
+    return is;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
     return is;
   }
 }
@@ -655,7 +661,12 @@ std::istream& BigInteger<2>::read(std::istream& is) {
     temp_num.Clear();
     temp_num.AddDigit(0);
     return temp_num;
-   }
+   }catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    temp_num.Clear();
+    temp_num.AddDigit(0);
+    return temp_num;
+  }
  }
  
  
@@ -699,6 +710,10 @@ BigInteger<2> operator/ (const BigInteger<2>& big_binary_1, const BigInteger<2>&
     std::cerr << error.what() << std::endl;
     temp_num.AddDigit(0);
     return temp_num;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    temp_num.AddDigit(0);
+    return temp_num;
   }
  }
  
@@ -735,6 +750,9 @@ BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>
     return temp_num_1;
   } catch (const BigNumberDivisionByZero& error) {
     std::cerr << error.what() << std::endl;
+    return null;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
     return null;
   }
  }
@@ -811,7 +829,7 @@ BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>
  
 /**
  * @brief Operator to change type to BigInteger
- * @return Equivalent BigInteger
+ * @return Equivalent BigInteger (itself)
  */
  BigInteger<2>::operator BigInteger<2>() const {
    return *this;
@@ -1213,6 +1231,9 @@ template <unsigned char Base> BigInteger<Base> BigInteger<Base>::mcd(const BigIn
     return temp_num_1;
   } catch (const BigNumberDivisionByZero& error) {
     std::cerr << error.what() << std::endl;
+    return null;
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
     return null;
   }
 }
