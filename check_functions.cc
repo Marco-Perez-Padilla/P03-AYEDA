@@ -18,6 +18,7 @@
 **      05/02/2025 - Creacion (primera version) del codigo
 **      12/02/2025 - Finalizacion de la primera version codigo
 **      26/02/2025 - Adicion de checkfile functions
+**      09/03/2025 - Ajuste de la funcion de ayuda
 **/
 
 #include <iostream>
@@ -76,7 +77,7 @@ void ValidateCommand(int argc, char* argv[]) {
  * @brief Prints Help to the user
  */
 void Help () {
-    std::cout << "./p02_big_rationals -- Manage big rational using templates to work in bases 2, 8, 10 and 16\n"
+    std::cout << "./p03_big_calculator -- Calculator that works in bases 2, 8, 10 and 16 with unsigned, integers and rationals\n"
               << "Usage:                ./p03_big_calculator filein.txt fileout.txt\n"
               << "\n"
               << "filein.txt:      Input file, with extension .txt and format:\n"
@@ -87,7 +88,6 @@ void Help () {
               << "                                - Unsigned: Unsigned number, according to the specified base. After the number, it must end with 'u'. Example: 10u\n"
               << "                                - Integer: Integer number, according to the specified base. After the number, it must end with 'u'. Example: -10i\n"
               << "                                - Rational: Rational number, according to the specified base. Format 'numerator/denominator'. After the number, it must end with 'r'. Example: 10/-3r\n"
-
               << "fileout.txt:     Output file with the results of the analysis\n"
               << "\n";
 }

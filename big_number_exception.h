@@ -67,11 +67,11 @@ class BigNumberDivisionByZero : public BigNumberException {
 
 
 /**
- * @brief Class BigNumberDivisionByZero. Throws an expection if there is a division by zero
+ * @brief Class BigNumberDivisionByZero. Throws an expection if a rational has incorrect format
  */
 class BigNumberRationalFormat : public BigNumberException {
  public:
-  BigNumberRationalFormat() : BigNumberException("Error: Incorrect format.It must be 'numerator / denominator'") {}
+  BigNumberRationalFormat() : BigNumberException("Error: Incorrect format.It must be 'numerator/denominator'") {}
 };
 
 
@@ -102,7 +102,6 @@ class BigNumberTooManyResults : public BigNumberException {
  };
 
 
-
  /**
  * @brief Class BigNumberNotSupportedBase. Throws an expection if the input base is not 2, 8, 10 or 16
  */
@@ -110,4 +109,6 @@ class BigNumberNotSupportedBase : public BigNumberException {
   public:
    BigNumberNotSupportedBase() : BigNumberException("Error: The input base is not supported currently") {}
  };
+
+
 #endif
