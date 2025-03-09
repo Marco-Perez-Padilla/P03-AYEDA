@@ -62,7 +62,7 @@ template <unsigned char Base = 10> class BigNumber {
  * @return pointer to the new memory direction
  */
 template <unsigned char Base> BigNumber<Base>* BigNumber<Base>::create(const char* string) {
-  std::string input(str);
+  std::string input(string);
   try {
     if (input.back() == 'u') {
       input.pop_back(); // Remove it
