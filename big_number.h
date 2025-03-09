@@ -29,7 +29,7 @@ template <unsigned char Base> class BigUnsigned;
 template <unsigned char Base> class BigInteger;
 template <unsigned char Base> class BigRational;
 
-template <unsigned char Base> class BigNumber {
+template <unsigned char Base = 10> class BigNumber {
  protected:
   virtual std::ostream& write(std::ostream&) const = 0; // Write method, it'll be specified in each sub-class
   virtual std::istream& read(std::istream&) = 0; // Read method, it'll be specified in each sub-class
@@ -64,15 +64,15 @@ template <unsigned char Base> BigNumber<Base>* BigNumber<Base>::create(const cha
   try {
     if (input.back() == 'u') {
       input.pop_back(); // Remove it
-      return new BigUnsigned<Base>(input); // Create a BigUnsigned
+      return new BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(input.c_str())); // Create a BigUnsigned
     } 
     else if (input.back() == 'i') {
       input.pop_back(); // Remove it
-      return new BigInteger<Base>(input); // Create a BigInteger
+      return new BigInteger<Base>(BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(input.c_str()))); // Create a BigInteger
     } 
     else if (input.back() == 'r') {
       input.pop_back(); // Remove it
-      return new BigRational<Base>(input); // Create a BigRational
+      return new BigRational<Base>(BigInteger<Base>(BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(input.c_str())))); // Create a BigRational
     }
     throw BigNumberNotRecognized(input.back());
   } catch (const BigNumberNotRecognized& error) {

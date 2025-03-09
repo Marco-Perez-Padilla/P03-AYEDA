@@ -470,7 +470,7 @@ BigInteger<2>::operator BigRational<2>() const {
  * @brief Template of BigRational classes, it generates a BigRational number depending on the base passed as parameter.
  * @param unsigned_char base of representation
  */
-template <unsigned char Base = 10> class BigRational {
+template <unsigned char Base = 10> class BigRational : public BigNumber<Base>{
  private:
   BigInteger<Base> numerator_;
   BigInteger<Base> denominator_;; 

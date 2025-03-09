@@ -31,6 +31,7 @@
 #include "big_integer.h"
 #include "big_rational.h"
 #include "big_number.h"
+#include "calculator.h"
 
 #include "check_functions.h"
 

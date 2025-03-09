@@ -7,7 +7,7 @@
 ** Practica 3: Calculadora para números grandes
 ** Autor: Marco Pérez Padilla
 ** Correo: alu0101469348@ull.edu.es
-** Fecha: 06/03/2025
+** Fecha: 07/03/2025
 
 ** Archivo big_number_exception.h: Declaracion de la clase que maneja los errores 
 **
@@ -71,6 +71,15 @@ class BigNumberDivisionByZero : public BigNumberException {
 class BigNumberRationalFormat : public BigNumberException {
  public:
   BigNumberRationalFormat() : BigNumberException("Error: Incorrect format.It must be 'numerator / denominator'") {}
+};
+
+
+/**
+ * @brief Class BigNumberNotEnoughOperands. Throws an expection if there are not enough operands in the ERN expression
+ */
+class BigNumberNotEnoughOperands : public BigNumberException {
+ public:
+  BigNumberNotEnoughOperands() : BigNumberException("Error: Not enough operands") {}
 };
 
 
