@@ -16,7 +16,7 @@
 
 ** Historial de revisiones:
 **      06/03/2025 - Creacion (primera version) del codigo
-
+**      09/03/2025 - Adicion del destructor
 **/
 
 #ifndef BIG_NUMBER_H
