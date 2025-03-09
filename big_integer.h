@@ -835,7 +835,7 @@ BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>
    return *this;
  }
  
-// Its operator for chaging type to BigRational is in big_rational.h, line XXXX
+// Its operator for chaging type to BigRational is in big_rational.h, lines 459-466
 
 
 /**
