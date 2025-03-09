@@ -124,6 +124,9 @@ template <unsigned char Base> void EvaluateExpression(const std::string& label, 
   } catch (const BigNumberException& error) { // If any exception occurred, we notify it and associate the label with "0u"
     std::cerr << error.what() << ". In label: " << label << std::endl;
     map<Base>[label] = BigNumber<Base>::create("0u");
+  } catch (const std::exception& error) {
+    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    map<Base>[label] = BigNumber<Base>::create("0u");
   }
 }
 
