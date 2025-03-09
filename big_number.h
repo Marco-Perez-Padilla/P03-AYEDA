@@ -49,7 +49,7 @@ template <unsigned char Base = 10> class BigNumber {
   virtual operator BigInteger<Base>() const = 0;
   virtual operator BigRational<Base>() const = 0;
   // Method to create an object depending on the sufix of a string
-  static BigNumber<Base>* create(const char* str);
+  static BigNumber<Base>* create(const char* string);
 };
 
 
@@ -61,7 +61,7 @@ template <unsigned char Base = 10> class BigNumber {
  * @param const_char* array of characters to be read
  * @return pointer to the new memory direction
  */
-template <unsigned char Base> BigNumber<Base>* BigNumber<Base>::create(const char* str) {
+template <unsigned char Base> BigNumber<Base>* BigNumber<Base>::create(const char* string) {
   std::string input(str);
   try {
     if (input.back() == 'u') {
