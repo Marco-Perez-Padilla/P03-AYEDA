@@ -46,7 +46,7 @@ bool ValidateFile (const std::string& name) {
  */
 void CheckFileError (const std::string& name) {
   if (ValidateFile(name)) return;
-  std::cerr << "Error in input file: Wrong extension. Please, try \"p02_big_rationals --help\" for further information" << std::endl;
+  std::cerr << "Error in input file: Wrong extension. Please, try \"./p03_big_calculator --help\" for further information" << std::endl;
   exit(EXIT_FAILURE);
 }
 
@@ -77,14 +77,17 @@ void ValidateCommand(int argc, char* argv[]) {
  */
 void Help () {
     std::cout << "./p02_big_rationals -- Manage big rational using templates to work in bases 2, 8, 10 and 16\n"
-              << "Usage:                ./p01_big_integers filein.txt fileout.txt\n"
+              << "Usage:                ./p03_big_calculator filein.txt fileout.txt\n"
               << "\n"
               << "filein.txt:      Input file, with extension .txt and format:\n"
-              << "                       First line specifying the base, such as: 'Base = X' in where X is the wanted base\n"
-              << "                       Second and third lines specifying the rational number with format: NX = A / B, where:\n"
-              << "                            - X: Number of the line (this program supports only N1 and N2 currently)\n"
-              << "                            - A: Integer number, according to the specified base. Numerator of the rational\n"
-              << "                            - B: Integer number, according to the specified base. Denominator of the rational\n"
+              << "                       First line specifying the base, such as: 'Base = X' in where X is the wanted base (2, 8, 10 or 16)\n"
+              << "                       For each of the following lines, They must start with a label, followed by '=' OR '?':\n"
+              << "                            - ?: Indicates that the following will be an expression to be evaluated\n"
+              << "                            - =: Indicates that the following is the value of an operand. There are three posibilities for such:\n"
+              << "                                - Unsigned: Unsigned number, according to the specified base. After the number, it must end with 'u'. Example: 10u\n"
+              << "                                - Integer: Integer number, according to the specified base. After the number, it must end with 'u'. Example: -10i\n"
+              << "                                - Rational: Rational number, according to the specified base. Format 'numerator/denominator'. After the number, it must end with 'r'. Example: 10/-3r\n"
+
               << "fileout.txt:     Output file with the results of the analysis\n"
               << "\n";
 }
@@ -94,6 +97,6 @@ void Help () {
  * @brief Prints how to use the program
  */
 void Usage() {
-  std::cout << "How to use: ./p02_big_rationals\n"
-            << "Try './p02_big_rationals --help' for further information\n";
+  std::cout << "How to use: ./p03_big_calculator\n"
+            << "Try './p03_big_calculator --help' for further information\n";
 }
