@@ -37,6 +37,8 @@ template <unsigned char Base = 10> class BigNumber {
   friend std::istream& operator>>(std::istream& is, BigNumber<Base>& num) { return num.read(is);} // General >> operator, invokes "read"
 
  public:
+  // Virtual destructor
+  virtual ~BigNumber() {}
   // Virtual calculation methods to override in each sub-class
   virtual BigNumber<Base>& add(const BigNumber<Base>&) const = 0;
   virtual BigNumber<Base>& subtract(const BigNumber<Base>&) const = 0;

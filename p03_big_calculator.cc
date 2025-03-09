@@ -22,6 +22,7 @@
 **      26/02/2025 - Adicion de funciones para instanciar las plantillas en tiempo de compilacion
 **      26/02/2025 - Adaptacion final del la version 2.0 del codigo para trabajar con ficheros de entrada y salida
 **      07/03/2025 - Adicion de las clases BigNumber y BigNumberException
+**      09/03/2025 - Adicion de ProcessFile
 **/
 
 #include <iostream>
@@ -36,95 +37,6 @@
 #include "check_functions.h"
 
 
-// /**
-//  * @brief Template function that will do the required operations based on the templates. This function is not responsive of the instantiation
-//           of the templates in compilation times. It's merely responsive of the operations themselves, requiring itself a proper instantiation 
-//           by other function
-//  * @param ofstream file where the results will be written in
-//  * @param ifstream file where the numbers will be read from
-//  */
-// template <unsigned char B> void ProcessBaseRationals(std::ofstream& outfile, std::ifstream& infile) {
-//   std::string line;
-//   BigRational<B> numero_1, numero_2; // Template BigRational
-
-//   if (getline(infile, line)) {      // Getting the first line
-//     if (line.substr(0, 2) == "N1") {
-//       // Substracting the number, without any other tags
-//       std::string rationalStr = line.substr(line.find("=") + 1);
-//       std::istringstream iss(rationalStr);
-//       // Using the >> operator from BigRational
-//       iss >> numero_1;
-//     }
-//   }
-  
-//   // Same with the second number
-//   if (getline(infile, line)) {
-//       if (line.substr(0, 2) == "N2") {
-//           std::string rationalStr = line.substr(line.find("=") + 1);
-//           std::istringstream iss(rationalStr);
-//           iss >> numero_2;
-//       }
-//   }
-  
-//   // Print the base into the output file 
-//   outfile << "Base = " << static_cast<int>(B) << std::endl;
-
-//   // Printing the numbers into the output file 
-//   outfile << "N1 = " << numero_1 << std::endl;
-//   outfile << "N2 = " << numero_2 << std::endl;
-  
-//   // Operations
-//   outfile << "N1 + N2 = " << (numero_1 + numero_2) << std::endl;
-//   outfile << "N1 - N2 = " << (numero_1 - numero_2) << std::endl;
-//   outfile << "N1 * N2 = " << (numero_1 * numero_2) << std::endl;
-//   outfile << "N1 / N2 = " << (numero_1 / numero_2) << std::endl;
-//   outfile << "N1 < N2 : "<< ((numero_1 < numero_2) ? "true" : "false") << std::endl;
-//   outfile << "N1 == N2 : " << ((numero_1 == numero_2) ? "true" : "false") << std::endl;
-// }
-
-
-
-// /**
-//  * @brief Function that, given a base, it instantiates the correspondent template, considering bases 2, 8, 10 and 16
-//  * @param unsigned_char base in which we're working
-//  * @param string name of the output file
-//  * @param string name of the input file
-//  */
-// void ProcessRationals(unsigned char base, const std::string& output_file, const std::string& input_file) {
-//   // Opening the files
-//   std::ifstream in_file(input_file);
-//   std::ofstream out_file(output_file);
-//   std::string line;
-  
-//   // The first line contains the base. Since we read it in the main, we skip it
-//   getline(in_file, line); 
-  
-//   // Instantiation depending on the base
-//   switch(base) {
-//     case 2:
-//       std::cout << "Generating file '" << output_file << "'..."<< std::endl;
-//       ProcessBaseRationals<2>(out_file, in_file);
-//       break;
-//     case 8:
-//       std::cout << "Generating file '" << output_file << "'..."<< std::endl;
-//       ProcessBaseRationals<8>(out_file, in_file);
-//       break;
-//     case 10:
-//       std::cout << "Generating file '" << output_file << "'..."<< std::endl;
-//       ProcessBaseRationals<10>(out_file, in_file);
-//       break;
-//     case 16:
-//       std::cout << "Generating file '" << output_file << "'..."<< std::endl;
-//       ProcessBaseRationals<16>(out_file, in_file);
-//       break;
-//     default:
-//       // If none of above, abort
-//       std::cerr << "non-available base: " << static_cast<int>(base) << std::endl;
-//       exit(EXIT_FAILURE);
-//   }
-// }
-
-
 /**
  * @brief main function, invokes the needed function to work as a client function, managing minor errors
  */
@@ -137,34 +49,38 @@ int main (int argc, char* argv[]) {
   std::ifstream in_file(input);
   std::ofstream out_file(output);
 
-  std::cout << "prueba" << std::endl;
-
+  if (!in_file) {
+    std::cerr << "Error: File " << input << " couldn't be opened" << std::endl;
+    return EXIT_FAILURE;
+  }
   
-  // if (!in_file) {
-  //   std::cerr << "Error: File " << input << " couldn't be opened" << std::endl;
-  //   return EXIT_FAILURE;
-  // }
-  
-  // if (!out_file) {
-  //   std::cerr << "Error: File " << output << " couldn't be opened" << std::endl;
-  //   return EXIT_FAILURE;
-  // }
+  if (!out_file) {
+    std::cerr << "Error: File " << output << " couldn't be opened" << std::endl;
+    return EXIT_FAILURE;
+  }
 
-  // // Read the base, with default base = 10
-  // std::string line;
-  // unsigned char base = 10; 
-  
-  // if (getline(in_file, line)) {
-  //   if (line.substr(0, 5) == "Base ") {
-  //     base = static_cast<unsigned char>(std::stoi(line.substr(6)));
-  //   }
-  // }
-  
-  // in_file.close(); 
+  // Read the base, with default base = 10
+  std::string line;
+  unsigned char base = 10; 
+  try {
+    if (getline(in_file, line)) {
+      if (line.substr(0, 5) == "Base ") {
+        base = static_cast<unsigned char>(std::stoi(line.substr(6)));
+        if (base != 2 && base != 8 && base != 10 && base != 16) {
+          throw BigNumberNotSupportedBase();
+        }
+      }
+    }
+  } catch (const BigNumberNotSupportedBase& error) {
+    std::cerr << error.what() << std::endl;
+    return 1;
+  }
 
-  // ProcessRationals(base, output, input);
+  in_file.close(); 
 
-  // out_file.close();
+  ProcessFile(base, input, output);
+
+  out_file.close();
 
   return 0;
 }

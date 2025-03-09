@@ -17,6 +17,7 @@
 ** Historial de revisiones:
 **      07/03/2025 - Creacion (primera version) del codigo
 **      07/03/2025 - Adicion de excepcion para formato de racional incorrecto
+**      09/03/2025 - Adicion de excepciones para la evaluacion de expresiones RPN's
 **/
 
 #ifndef BIG_NUMBER_EXCEPTION_H
@@ -75,7 +76,7 @@ class BigNumberRationalFormat : public BigNumberException {
 
 
 /**
- * @brief Class BigNumberNotEnoughOperands. Throws an expection if there are not enough operands in the ERN expression
+ * @brief Class BigNumberNotEnoughOperands. Throws an expection if there are not enough operands in the RPN expression
  */
 class BigNumberNotEnoughOperands : public BigNumberException {
  public:
@@ -83,4 +84,30 @@ class BigNumberNotEnoughOperands : public BigNumberException {
 };
 
 
+/**
+ * @brief Class BigNumberUnknownOperator. Throws an expection if there is an unknown operator in the RPN expression
+ */
+class BigNumberUnknownOperator : public BigNumberException {
+  public:
+  explicit BigNumberUnknownOperator(const std::string& operator_string) : BigNumberException("Error: Operator not valid: " + operator_string) {}
+ };
+
+
+ /**
+ * @brief Class BigNumberTooManyResults. Throws an expection if there are more than one elements on the final stack
+ */
+class BigNumberTooManyResults : public BigNumberException {
+  public:
+   BigNumberTooManyResults() : BigNumberException("Error: Expression not valid. More than one operands on the stack after finishing calculations") {}
+ };
+
+
+
+ /**
+ * @brief Class BigNumberNotSupportedBase. Throws an expection if the input base is not 2, 8, 10 or 16
+ */
+class BigNumberNotSupportedBase : public BigNumberException {
+  public:
+   BigNumberNotSupportedBase() : BigNumberException("Error: The input base is not supported currently") {}
+ };
 #endif

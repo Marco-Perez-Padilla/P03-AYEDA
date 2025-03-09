@@ -33,33 +33,45 @@
 #include "big_number.h"
 #include "big_number_exception.h"
 
-// Tabla de operandos con punteros a BigNumber<Base>
+// Unordered map that relationates a string with a pointer to a BigNumber<Base> object
 template <unsigned char Base> std::unordered_map<std::string, BigNumber<Base>*> map;
 
-// Función para limpiar memoria
-template <unsigned char Base> void ClearBoard() {
+/**
+ * @brief Function that clears the map and frees its memory
+ */
+template <unsigned char Base> void ClearMap() {
   for (auto& pair : map<Base>) {
     delete pair.second;
   }
   map<Base>.clear();
 }
 
-// Crear un número grande en la tabla
+
+/**
+ * @brief Function that uses create method to create a BigNumber<Base> object. If the object already existed, it's rewritten
+ * @param string label, name of the object
+ * @param string value of the object
+ */
 template <unsigned char Base> void CreateBigNumber(const std::string& label, const std::string& value) {
+  // If it existed previously, overload it (free the memory)
   if (map<Base>.count(label)) {
-    delete map<Base>[label]; // Liberamos memoria anterior
+    delete map<Base>[label]; 
   }
-
+  // Create the object
   map<Base>[label] = BigNumber<Base>::create(value.c_str());
-
+  // If nullptr (error), then associate "0u"
   if (!map<Base>[label]) {
-    std::cerr << "Error: Invalid number format for label " << label << '\n';
-    map<Base>[label] = BigNumber<Base>::create("0u"); // En caso de error, asignamos "0u"
+    map<Base>[label] = BigNumber<Base>::create("0u"); 
   }
 }
 
 
-// Evaluar una expresión en Notación Polaca Inversa
+/**
+ * @brief Function that, given an expression made out of labels and +, -, *, / operators, evaluates it and associates a label with its result.
+ *        It manages all the errors that could occurred by initializating the result as "0u"
+ * @param string label, name of the expression
+ * @param istringstream expression itself
+ */
 template <unsigned char Base> void EvaluateExpression(const std::string& label, std::istringstream& expression) {
   std::stack<BigNumber<Base>*> stack;
   std::string command;
@@ -73,7 +85,7 @@ template <unsigned char Base> void EvaluateExpression(const std::string& label, 
       } else { // Otherwise, it is an operation. We consider only operations with arity 2
         // If there are less than two operands on the stack, operation cannot be made
         if (stack.size() < 2) {
-          throw BigNumberException("Not enough operands.");
+          throw BigNumberNotEnoughOperands();
         }
         // Getting the operands
         BigNumber<Base>* operand_2 = stack.top(); 
@@ -93,7 +105,7 @@ template <unsigned char Base> void EvaluateExpression(const std::string& label, 
         } else if (command == "/") {
           result = &operand_1->divide(*operand_2);
         } else {
-          throw BigNumberException("Unknown operator: " + command);
+          throw BigNumberUnknownOperator(command.c_str());
         }
         // Push the result onto the stack
         stack.push(result);
@@ -101,7 +113,7 @@ template <unsigned char Base> void EvaluateExpression(const std::string& label, 
     }
     // If, after the calculations, there are more than one elements on the stack, the expression is not valid
     if (stack.size() != 1) {
-      throw BigNumberException("Invalid expression.");
+      throw BigNumberTooManyResults();
     }
     // Clearing the memory
     if (map<Base>.count(label)) {
@@ -109,14 +121,19 @@ template <unsigned char Base> void EvaluateExpression(const std::string& label, 
     }
     // Associating the label with the result
     map<Base>[label] = stack.top();
-  } catch (const BigNumberException& e) { // If any exception occurred, we notify it and associate the label with "0u"
-    std::cerr << "Error: " << e.what() << '\n';
+  } catch (const BigNumberException& error) { // If any exception occurred, we notify it and associate the label with "0u"
+    std::cerr << error.what() << ". In label: " << label << std::endl;
     map<Base>[label] = BigNumber<Base>::create("0u");
   }
 }
 
 
-// Procesamiento del archivo según la base
+/**
+ * @brief Function that instantiates the templates depending on the base, and calls for EvaluateExpression
+ * @param unsigned_char base in which the operations will be made
+ * @param string name of the input file
+ * @param string name of the output file
+ */
 void ProcessFile(unsigned char base, const std::string& input_file, const std::string& output_file) {
   std::ifstream in_file(input_file);
   std::ofstream out_file(output_file);
@@ -151,7 +168,7 @@ void ProcessFile(unsigned char base, const std::string& input_file, const std::s
           CreateBigNumber<16>(label, value);
           break;
         default:
-          // If none of above, abort
+          // If none of above, abort. This will never be reached
           std::cerr << "non-available base: " << static_cast<int>(base) << std::endl;
           exit(EXIT_FAILURE);
       }
@@ -175,32 +192,34 @@ void ProcessFile(unsigned char base, const std::string& input_file, const std::s
           EvaluateExpression<16>(label, reading_line);
           break;
         default:
-          // If none of above, abort
+          // If none of above, abort. This will never be reached
           std::cerr << "non-available base: " << static_cast<int>(base) << std::endl;
           exit(EXIT_FAILURE);
       }
+    } else {
+      std::cerr << "Not available line: " << line << ". Use './p03_calculator --help' if you need help with the format." << std::endl;
     }
   }
-
+  // Freeing the maps for the next use
   switch(base) {
     case 2:
       std::cout << "Clearing map ..." << std::endl;
-      ClearBoard<2>();
+      ClearMap<2>();
       break;
       case 8:
       std::cout << "Clearing map ..." << std::endl;
-      ClearBoard<2>();
+      ClearMap<2>();
       break;
     case 10:
       std::cout << "Clearing map ..." << std::endl;
-      ClearBoard<2>();
+      ClearMap<2>();
       break;
     case 16:
       std::cout << "Clearing map ..." << std::endl;
-      ClearBoard<2>();
+      ClearMap<2>();
       break;
     default:
-      // If none of above, abort
+      // If none of above, abort. This will never be reached
       std::cerr << "non-available base: " << static_cast<int>(base) << std::endl;
       exit(EXIT_FAILURE);
   }
