@@ -1,6 +1,6 @@
-Base = 16
-E1 = -2Ci
-N4 = 3Ai
+Base = 10
+E1 = -63i
+N4 = 3i
 N3 = 66i
 N2 = 0u
 N1 = 10/9r

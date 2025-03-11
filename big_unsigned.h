@@ -112,11 +112,10 @@ template <unsigned char Base> BigUnsigned<Base>::BigUnsigned(const unsigned char
   // Temporal vector. We'll use it to revert the addition order 
   std::vector<unsigned char> temp_digits;
   unsigned i {0};
-  try {
     // For each char in the array, until it reaches '<\0'
     while (char_array[i] != '\0') {
       // If it's not a number, abort
-      if ((char_array[i] < '0' || char_array[i] > (Base + '0')) && (char_array[i] < 'A' || char_array[i] > 'Z' || Base < 10)) { // REVISAR
+      if ((char_array[i] < '0' || char_array[i] > (Base + '0')) || (Base > 10 && char_array[i] >= 'A' && char_array[i] < ('A' + (Base - 10)))) { // REVISAR
         throw BigNumberBadDigit(char_array[i]);
       } else {
         // Convert the digit
@@ -135,11 +134,7 @@ template <unsigned char Base> BigUnsigned<Base>::BigUnsigned(const unsigned char
     for (int j = temp_digits.size() - 1; j >= 0; j--) {
       digits_.push_back(temp_digits[j]);
     }
-  } catch (const BigNumberBadDigit& error) {
-    std::cerr << error.what() << std::endl;
-  } catch (const std::exception& error) {
-    std::cerr << "Unexpected error: " << error.what() << std::endl;
-  }
+  
 }
 
 

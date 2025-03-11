@@ -99,7 +99,7 @@ template<> class BigRational<2> : public BigNumber<2> {
    BigInteger<2> numerator = getNumerator();
    BigInteger<2> denominator = getDenominator();
  
-   os << numerator << " / " << denominator;
+   os << numerator << "/" << denominator;
     
    return os;
  }
@@ -577,10 +577,7 @@ template <unsigned char Base> std::istream& BigRational<Base>::read(std::istream
   } catch (const BigNumberDivisionByZero& error) {
     std::cerr << error.what() << std::endl;
     return is;
-  } catch (const std::exception& error) {
-    std::cerr << "Unexpected error: " << error.what() << std::endl;
-    return is;
-  }
+  } 
 }
 
 

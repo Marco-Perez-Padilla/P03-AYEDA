@@ -136,7 +136,7 @@ template<> class BigInteger<2> : public BigNumber<2> {
    // Temporal vector. We'll use it to revert the addition order 
    std::vector<unsigned char> temp_digits;
    unsigned i {0};
-   try {
+   
     // For each char in the array, until it reaches '<\0'
     while (char_array[i] != '\0') {
       // If it's not a number, abort
@@ -159,11 +159,7 @@ template<> class BigInteger<2> : public BigNumber<2> {
     for (int j = temp_digits.size() - 1; j >= 0; j--) {
       module_.push_back(temp_digits[j]);
     }
-  } catch (const BigNumberBadDigit& error) {
-    std::cerr << error.what() << std::endl;
-  } catch (const std::exception& error) {
-    std::cerr << "Unexpected error: " << error.what() << std::endl;
-  }
+  
  }
  
  
@@ -223,7 +219,6 @@ template<> class BigInteger<2> : public BigNumber<2> {
   */
 std::istream& BigInteger<2>::read(std::istream& is) {
   std::string input;
-  try {
     is >> input;
     // Initialize a bool to create the BI number
     module_.clear();
@@ -256,13 +251,7 @@ std::istream& BigInteger<2>::read(std::istream& is) {
     sign_ = not_negative;
   
     return is;
-  } catch (const BigNumberBadDigit& error) {
-    std::cerr << error.what() << std::endl;
-    return is;
-  } catch (const std::exception& error) {
-    std::cerr << "Unexpected error: " << error.what() << std::endl;
-    return is;
-  }
+  
 }
  
  

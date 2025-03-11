@@ -67,38 +67,62 @@ template <unsigned char Base> BigNumber<Base>* BigNumber<Base>::create(const cha
   try {
     if (input.back() == 'u') {
       input.pop_back(); // Remove it
-      return new BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(input.c_str())); // Create a BigUnsigned
+      try {
+        const unsigned char* number = reinterpret_cast<const unsigned char*>(input.c_str());
+        return new BigUnsigned<Base>(number); // Create a BigUnsigned
+      } catch (const BigNumberBadDigit& error) {
+        std::cerr << error.what() << std::endl;
+        return nullptr;
+      } 
     } 
     else if (input.back() == 'i') {
       input.pop_back(); // Remove it
-      return new BigInteger<Base>(BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(input.c_str()))); // Create a BigInteger
+      try {
+        BigUnsigned<Base>number(reinterpret_cast<const unsigned char*>(input.c_str()));
+        return new BigInteger<Base>(number); // Create a BigInteger
+      } catch (const BigNumberBadDigit& error) {
+        std::cerr << error.what() << std::endl;
+        return nullptr;
+      } 
     } 
     else if (input.back() == 'r') {
-      input.pop_back(); // Remove it
-      // Separar numerador y denominador
-    std::istringstream iss(input);
-    std::string num_str, den_str;
-    if (!std::getline(iss, num_str, '/') || !std::getline(iss, den_str)) {
-        throw BigNumberRationalFormat(); // Formato inválido
+      try {
+        input.pop_back(); // Remove it
+        // Separar numerador y denominador
+        std::istringstream iss(input);
+        std::string num_str, den_str;
+        if (!std::getline(iss, num_str, '/') || !std::getline(iss, den_str)) {
+          throw BigNumberRationalFormat(); // Formato inválido
+        }
+
+        // Convertir numerador y denominador a BigUnsigned<Base>
+        BigInteger<Base> numerator(BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(num_str.c_str())));
+        BigInteger<Base> denominator(BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(den_str.c_str())));
+
+        // Validar que el denominador no sea 0
+        if (denominator == BigInteger<Base>(0)) {
+          throw BigNumberDivisionByZero();
+        }
+
+        // Crear y retornar el número racional
+        return new BigRational<Base>(numerator, denominator);
+      } catch (const BigNumberRationalFormat& error) {
+        std::cerr << error.what() << std::endl;
+        return nullptr;
+      } catch (const BigNumberDivisionByZero& error) {
+        std::cerr << error.what() << std::endl;
+        return nullptr;
+      } catch (const BigNumberBadDigit& error) {
+        std::cerr << error.what() << std::endl;
+        return nullptr;
+      } 
     }
 
-    // Convertir numerador y denominador a BigUnsigned<Base>
-    BigInteger<Base> numerator(BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(num_str.c_str())));
-    BigInteger<Base> denominator(BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(den_str.c_str())));
-
-    // Validar que el denominador no sea 0
-    if (denominator == BigInteger<Base>(0)) {
-        throw BigNumberDivisionByZero();
-    }
-
-    // Crear y retornar el número racional
-    return new BigRational<Base>(numerator, denominator);
-    }
     throw BigNumberNotRecognized(input.back());
   } catch (const BigNumberNotRecognized& error) {
     std::cerr << error.what() << std::endl;
     return nullptr;
-  }
+  } 
 }
 
 

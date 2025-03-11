@@ -60,7 +60,7 @@ template <unsigned char Base> void CreateBigNumber(const std::string& label, con
   // Create the object
   map<Base>[label] = BigNumber<Base>::create(value.c_str());
   // If nullptr (error), then associate "0u"
-  if (!map<Base>[label]) {
+  if (map<Base>[label] == nullptr) {
     map<Base>[label] = BigNumber<Base>::create("0u"); 
   }
 }

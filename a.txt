@@ -1,6 +1,6 @@
-Base = 16
+Base = 10
 N1 = 10/9r
 N2 = 11
 N3 = 66i
-N4 = 3Ai
+N4 = 3i
 E1 ? N4 N3 -
