@@ -778,7 +778,7 @@ BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>
    return *this;
  }
  
-// Methods add, subtract, multiply and divide depend on the operator to change typo to BigRational<2>
+// Methods add, subtract, multiply and divide depend on the operator to change type to BigRational<2>
 // Therefore, the implementations have been moved to big_rational.h, lines 525-636
 
 
