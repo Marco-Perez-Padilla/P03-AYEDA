@@ -532,7 +532,7 @@ template <unsigned char Base> std::ostream& BigRational<Base>::write(std::ostrea
   BigInteger<Base> numerator = getNumerator();
   BigInteger<Base> denominator = getDenominator();
 
-  os << numerator << " / " << denominator;
+  os << numerator << "/" << denominator;
    
   return os;
 }

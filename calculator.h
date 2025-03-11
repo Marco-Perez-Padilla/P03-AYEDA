@@ -144,6 +144,7 @@ void ProcessFile(unsigned char base, const std::string& input_file, const std::s
 
   // The first line contains the base. Since we read it in the main, we skip it
   getline(in_file, line); 
+  out_file << "Base = " << static_cast<int>(base) << std::endl;
 
   // We don't have a limit of lines. Hence, we read until the EOF.
   while (std::getline(in_file, line)) {
@@ -175,7 +176,6 @@ void ProcessFile(unsigned char base, const std::string& input_file, const std::s
           std::cerr << "non-available base: " << static_cast<int>(base) << std::endl;
           exit(EXIT_FAILURE);
       }
-      out_file << label << " = " << value << '\n';
     } else if (operation == '?') {
       switch(base) {
         case 2:
@@ -207,29 +207,62 @@ void ProcessFile(unsigned char base, const std::string& input_file, const std::s
   switch(base) {
     case 2:
       for (auto& pair : map<2>) {
-        out_file << pair.first << " = " << *pair.second << std::endl;
+        out_file << pair.first << " = " << *pair.second;
+        if (typeid(*pair.second) == typeid(BigInteger<2>)) {
+          out_file << "i";
+        } else if (typeid(*pair.second) == typeid(BigUnsigned<2>)) {
+          out_file << "u";
+        } else if (typeid(*pair.second) == typeid(BigRational<2>)) {
+          out_file << "r";
+        }
+        out_file << std::endl;
       }
       std::cout << "Clearing map ..." << std::endl;
       ClearMap<2>();
       break;
       case 8:
       for (auto& pair : map<8>) {
-        out_file << pair.first << " = " << *pair.second << std::endl;
+        out_file << pair.first << " = " << *pair.second;
+        if (typeid(*pair.second) == typeid(BigInteger<8>)) {
+          out_file << "i";
+        } else if (typeid(*pair.second) == typeid(BigUnsigned<8>)) {
+          out_file << "u";
+        } else if (typeid(*pair.second) == typeid(BigRational<8>)) {
+          out_file << "r";
+        }
+        out_file << std::endl;
       }
       std::cout << "Clearing map ..." << std::endl;
       ClearMap<2>();
       break;
     case 10:
       for (auto& pair : map<10>) {
-        out_file << pair.first << " = " << *pair.second << std::endl;
+        out_file << pair.first << " = " << *pair.second;
+        if (typeid(*pair.second) == typeid(BigInteger<10>)) {
+          out_file << "i";
+        } else if (typeid(*pair.second) == typeid(BigUnsigned<10>)) {
+          out_file << "u";
+        } else if (typeid(*pair.second) == typeid(BigRational<10>)) {
+          out_file << "r";
+        }
+        out_file << std::endl;
       }
       std::cout << "Clearing map ..." << std::endl;
       ClearMap<2>();
       break;
     case 16:
       for (auto& pair : map<16>) {
-        out_file << pair.first << " = " << *pair.second << std::endl;
+        out_file << pair.first << " = " << *pair.second;
+        if (typeid(*pair.second) == typeid(BigInteger<16>)) {
+          out_file << "i";
+        } else if (typeid(*pair.second) == typeid(BigUnsigned<16>)) {
+          out_file << "u";
+        } else if (typeid(*pair.second) == typeid(BigRational<16>)) {
+          out_file << "r";
+        }
+        out_file << std::endl;
       }
+      
       std::cout << "Clearing map ..." << std::endl;
       ClearMap<2>();
       break;

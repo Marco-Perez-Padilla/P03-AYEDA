@@ -22,6 +22,7 @@
 #ifndef BIG_NUMBER_H
 #define BIG_NUMBER_H
 
+#include <sstream>
 #include "big_number_exception.h"
 
 // Forward declarations
@@ -74,7 +75,24 @@ template <unsigned char Base> BigNumber<Base>* BigNumber<Base>::create(const cha
     } 
     else if (input.back() == 'r') {
       input.pop_back(); // Remove it
-      return new BigRational<Base>(BigInteger<Base>(BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(input.c_str())))); // Create a BigRational
+      // Separar numerador y denominador
+    std::istringstream iss(input);
+    std::string num_str, den_str;
+    if (!std::getline(iss, num_str, '/') || !std::getline(iss, den_str)) {
+        throw BigNumberRationalFormat(); // Formato inválido
+    }
+
+    // Convertir numerador y denominador a BigUnsigned<Base>
+    BigInteger<Base> numerator(BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(num_str.c_str())));
+    BigInteger<Base> denominator(BigUnsigned<Base>(reinterpret_cast<const unsigned char*>(den_str.c_str())));
+
+    // Validar que el denominador no sea 0
+    if (denominator == BigInteger<Base>(0)) {
+        throw BigNumberDivisionByZero();
+    }
+
+    // Crear y retornar el número racional
+    return new BigRational<Base>(numerator, denominator);
     }
     throw BigNumberNotRecognized(input.back());
   } catch (const BigNumberNotRecognized& error) {
