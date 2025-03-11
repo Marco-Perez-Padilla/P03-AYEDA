@@ -125,7 +125,7 @@ template <unsigned char Base> void EvaluateExpression(const std::string& label, 
     std::cerr << error.what() << ". In label: " << label << std::endl;
     map<Base>[label] = BigNumber<Base>::create("0u");
   } catch (const std::exception& error) {
-    std::cerr << "Unexpected error: " << error.what() << std::endl;
+    std::cerr << "Unexpected error: " << error.what() << " he entrado aqui" << std::endl;
     map<Base>[label] = BigNumber<Base>::create("0u");
   }
 }
@@ -179,19 +179,19 @@ void ProcessFile(unsigned char base, const std::string& input_file, const std::s
     } else if (operation == '?') {
       switch(base) {
         case 2:
-          std::cout << "Reading expression in base 2 '" << label << "'..."<< std::endl;
+          std::cout << "Reading expression in base 2: '" << label << "'..."<< std::endl;
           EvaluateExpression<2>(label, reading_line);
           break;
           case 8:
-          std::cout << "Reading expression in base 8 '" << label << "'..."<< std::endl;
+          std::cout << "Reading expression in base 8: '" << label << "'..."<< std::endl;
           EvaluateExpression<8>(label, reading_line);
           break;
         case 10:
-          std::cout << "Reading expression in base 10 '" << label << "'..."<< std::endl;
+          std::cout << "Reading expression in base 10: '" << label << "'..."<< std::endl;
           EvaluateExpression<10>(label, reading_line);
           break;
         case 16:
-          std::cout << "Reading expression in base 16 '" << label << "'..."<< std::endl;
+          std::cout << "Reading expression in base 16: '" << label << "'..."<< std::endl;
           EvaluateExpression<16>(label, reading_line);
           break;
         default:
@@ -217,7 +217,7 @@ void ProcessFile(unsigned char base, const std::string& input_file, const std::s
         }
         out_file << std::endl;
       }
-      std::cout << "Clearing map ..." << std::endl;
+      std::cout << "Clearing map for next use..." << std::endl;
       ClearMap<2>();
       break;
       case 8:
@@ -232,7 +232,7 @@ void ProcessFile(unsigned char base, const std::string& input_file, const std::s
         }
         out_file << std::endl;
       }
-      std::cout << "Clearing map ..." << std::endl;
+      std::cout << "Clearing map for next use..." << std::endl;
       ClearMap<2>();
       break;
     case 10:
@@ -247,7 +247,7 @@ void ProcessFile(unsigned char base, const std::string& input_file, const std::s
         }
         out_file << std::endl;
       }
-      std::cout << "Clearing map ..." << std::endl;
+      std::cout << "Clearing map for next use..." << std::endl;
       ClearMap<2>();
       break;
     case 16:
@@ -263,7 +263,7 @@ void ProcessFile(unsigned char base, const std::string& input_file, const std::s
         out_file << std::endl;
       }
       
-      std::cout << "Clearing map ..." << std::endl;
+      std::cout << "Clearing map for next use..." << std::endl;
       ClearMap<2>();
       break;
     default:

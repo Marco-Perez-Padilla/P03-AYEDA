@@ -24,7 +24,8 @@
 **      25/02/2025 - Adicion del constructor de cambio de tipo de BigUnsigned<2> a BigInteger<2>
 **      06/03/2025 - Adaptacion de la plantilla para usar la clase abstracta BigNumber (big_number.h)
 **      06/03/2025 - Adaptacion de la especializacion en base 2 para usar la clase abstracta BigNumber (big_number.h)
-**      07/03/2025 - Adicion de manejo de excepciones
+**      11/03/2025 - Cambio de implementacion de add, subtract, multiply y divide
+**      11/03/2025 - Arreglo del constructor partiendo de enteros
 **/
 
 
@@ -100,6 +101,7 @@ template<> class BigInteger<2> : public BigNumber<2> {
   * @param int to be converted
   */
  BigInteger<2>::BigInteger(int numero) {
+  module_.clear();
    // If zero (base case), build 0 with sign positive
    if (numero == 0) {
      module_.push_back(0);
@@ -140,7 +142,7 @@ template<> class BigInteger<2> : public BigNumber<2> {
     // For each char in the array, until it reaches '<\0'
     while (char_array[i] != '\0') {
       // If it's not a number, abort
-      if (char_array[i] != '0' && char_array[i] != '1') { // REVISAR
+      if (char_array[i] != '0' && char_array[i] != '1') { 
         throw BigNumberBadDigit(char_array[i]);
       } else {
         // Convert the digit
@@ -748,54 +750,6 @@ BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>
  
  
 /**
- * @brief Overriding of add method, allocating the result in dynamic memory
- * @param BigNumber<2> BigUnsigned, BigInteger or BigRational
- * @return BigNumber<2> result of the sum
- */
- BigNumber<2>& BigInteger<2>::add(const BigNumber<2>& other) const {
-   const BigInteger<2>& other_integer = dynamic_cast<const BigInteger<2>&>(other);
-   BigInteger<2>* result = new BigInteger<2>(*this + other_integer);
-   return *result;
- }
- 
- 
-/**
- * @brief Overriding of subtract method, allocating the result in dynamic memory
- * @param BigNumber<2> BigUnsigned, BigInteger or BigRational
- * @return BigNumber<2> result of the rest
- */
- BigNumber<2>& BigInteger<2>::subtract(const BigNumber<2>& other) const {
-   const BigInteger<2>& other_integer = dynamic_cast<const BigInteger<2>&>(other);
-   BigInteger<2>* result = new BigInteger<2>(*this - other_integer);
-   return *result;
- }
- 
-
-/**
- * @brief Overriding of multiply method, allocating the result in dynamic memory
- * @param BigNumber<2> BigUnsigned, BigInteger or BigRational
- * @return BigNumber<2> result of the multiplication
- */
- BigNumber<2>& BigInteger<2>::multiply(const BigNumber<2>& other) const {
-   const BigInteger<2>& other_integer = dynamic_cast<const BigInteger<2>&>(other);
-   BigInteger<2>* result = new BigInteger<2>(*this * other_integer);
-   return *result;
- }
- 
- 
-/**
- * @brief Overriding of divide method, allocating the result in dynamic memory
- * @param BigNumber<2> BigUnsigned, BigInteger or BigRational
- * @return BigNumber<2> result of the divition
- */
- BigNumber<2>& BigInteger<2>::divide(const BigNumber<2>& other) const {
-   const BigInteger<2>& other_integer = dynamic_cast<const BigInteger<2>&>(other);
-   BigInteger<2>* result = new BigInteger<2>(*this / other_integer);
-   return *result;
- }
- 
- 
-/**
  * @brief Operator to change type to BigUnsigned
  * @return Equivalent BigUnsigned<2>
  */
@@ -824,7 +778,8 @@ BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>
    return *this;
  }
  
-// Its operator for chaging type to BigRational is in big_rational.h, lines 459-466
+// Methods add, subtract, multiply and divide depend on the operator to change typo to BigRational<2>
+// Therefore, the implementations have been moved to big_rational.h, lines 525-636
 
 
 /**
@@ -878,6 +833,7 @@ template <unsigned char Base = 10> class BigInteger : public BigNumber<Base> {
  * @param int to be converted
  */
 template <unsigned char Base> BigInteger<Base>::BigInteger(int numero) {
+  module_.Clear();
   // If zero (base case), build 0 with sign positive
   if (numero == 0) {
     module_.AddDigit(0);
@@ -902,6 +858,7 @@ template <unsigned char Base> BigInteger<Base>::BigInteger(int numero) {
       }
       sign_ = 1;
     }
+    module_.ProcessZeros();
   }
 }
 
@@ -1234,9 +1191,23 @@ template <unsigned char Base> BigInteger<Base> BigInteger<Base>::mcd(const BigIn
  * @return BigNumber<Base> result of the sum
  */
 template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::add(const BigNumber<Base>& other) const {
+  try {
   const BigInteger<Base>& other_integer = dynamic_cast<const BigInteger<Base>&>(other);
   BigInteger<Base>* result = new BigInteger<Base>(*this + other_integer);
   return *result;
+  } catch (const std::bad_cast&) {
+    try {
+      const BigUnsigned<Base>& other_unsigned = dynamic_cast<const BigUnsigned<Base>&>(other);
+      BigInteger<Base> converted(other_unsigned);  
+      BigInteger<Base>* result = new BigInteger<Base>(*this + converted);
+      return *result;
+    } catch (const std::bad_cast&) {
+      const BigRational<Base>& other_rational = dynamic_cast<const BigRational<Base>&>(other);
+      BigRational<Base> rational = this->operator BigRational<Base>();
+      BigRational<Base>* result = new BigRational<Base>(rational + other_rational);
+      return *result;
+    }
+  }
 }
 
 
@@ -1246,9 +1217,23 @@ template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::add(const BigNu
  * @return BigNumber<Base> result of the rest
  */
 template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::subtract(const BigNumber<Base>& other) const {
-  const BigInteger<Base>& other_integer = dynamic_cast<const BigInteger<Base>&>(other);
-  BigInteger<Base>* result = new BigInteger<Base>(*this - other_integer);
-  return *result;
+  try {
+    const BigInteger<Base>& other_integer = dynamic_cast<const BigInteger<Base>&>(other);
+    BigInteger<Base>* result = new BigInteger<Base>(*this - other_integer);
+    return *result;
+    } catch (const std::bad_cast&) {
+      try {
+        const BigUnsigned<Base>& other_unsigned = dynamic_cast<const BigUnsigned<Base>&>(other);
+        BigInteger<Base> converted(other_unsigned);  
+        BigInteger<Base>* result = new BigInteger<Base>(*this - converted);
+        return *result;
+      } catch (const std::bad_cast&) {
+        const BigRational<Base>& other_rational = dynamic_cast<const BigRational<Base>&>(other);
+        BigRational<Base> rational = this->operator BigRational<Base>();
+        BigRational<Base>* result = new BigRational<Base>(rational - other_rational);
+        return *result;
+      }
+  }
 }
 
 
@@ -1258,9 +1243,23 @@ template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::subtract(const 
  * @return BigNumber<Base> result of the multiplication
  */
 template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::multiply(const BigNumber<Base>& other) const {
-  const BigInteger<Base>& other_integer = dynamic_cast<const BigInteger<Base>&>(other);
-  BigInteger<Base>* result = new BigInteger<Base>(*this * other_integer);
-  return *result;
+  try {
+    const BigInteger<Base>& other_integer = dynamic_cast<const BigInteger<Base>&>(other);
+    BigInteger<Base>* result = new BigInteger<Base>(*this * other_integer);
+    return *result;
+    } catch (const std::bad_cast&) {
+      try {
+        const BigUnsigned<Base>& other_unsigned = dynamic_cast<const BigUnsigned<Base>&>(other);
+        BigInteger<Base> converted(other_unsigned);  
+        BigInteger<Base>* result = new BigInteger<Base>(*this * converted);
+        return *result;
+      } catch (const std::bad_cast&) {
+        const BigRational<Base>& other_rational = dynamic_cast<const BigRational<Base>&>(other);
+        BigRational<Base> rational = this->operator BigRational<Base>();
+        BigRational<Base>* result = new BigRational<Base>(rational * other_rational);
+        return *result;
+      }
+  }
 }
 
 
@@ -1270,9 +1269,23 @@ template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::multiply(const 
  * @return BigNumber<Base> result of the division
  */
 template <unsigned char Base> BigNumber<Base>& BigInteger<Base>::divide(const BigNumber<Base>& other) const {
-  const BigInteger<Base>& other_integer = dynamic_cast<const BigInteger<Base>&>(other);
-  BigInteger<Base>* result = new BigInteger<Base>(*this / other_integer);
-  return *result;
+  try {
+    const BigInteger<Base>& other_integer = dynamic_cast<const BigInteger<Base>&>(other);
+    BigInteger<Base>* result = new BigInteger<Base>(*this / other_integer);
+    return *result;
+    } catch (const std::bad_cast&) {
+      try {
+        const BigUnsigned<Base>& other_unsigned = dynamic_cast<const BigUnsigned<Base>&>(other);
+        BigInteger<Base> converted(other_unsigned);  
+        BigInteger<Base>* result = new BigInteger<Base>(*this / converted);
+        return *result;
+      } catch (const std::bad_cast&) {
+        const BigRational<Base>& other_rational = dynamic_cast<const BigRational<Base>&>(other);
+        BigRational<Base> rational = this->operator BigRational<Base>();
+        BigRational<Base>* result = new BigRational<Base>(rational / other_rational);
+        return *result;
+      }
+  }
 }
 
 

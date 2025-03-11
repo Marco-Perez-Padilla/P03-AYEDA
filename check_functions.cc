@@ -87,7 +87,7 @@ void Help () {
               << "                            - =: Indicates that the following is the value of an operand. There are three posibilities for such:\n"
               << "                                - Unsigned: Unsigned number, according to the specified base. After the number, it must end with 'u'. Example: 10u\n"
               << "                                - Integer: Integer number, according to the specified base. After the number, it must end with 'u'. Example: -10i\n"
-              << "                                - Rational: Rational number, according to the specified base. Format 'numerator/denominator'. After the number, it must end with 'r'. Example: 10/-3r\n"
+              << "                                - Rational: Rational number, according to the specified base. Format 'numerator/denominator'. After the number, it must end with 'r'. Ex: 10/-3r\n"
               << "fileout.txt:     Output file with the results of the analysis\n"
               << "\n";
 }
