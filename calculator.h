@@ -183,15 +183,15 @@ void ProcessFile(unsigned char base, const std::string& input_file, const std::s
           EvaluateExpression<2>(label, reading_line);
           break;
           case 8:
-          std::cout << "Reading expression in base 2 '" << label << "'..."<< std::endl;
+          std::cout << "Reading expression in base 8 '" << label << "'..."<< std::endl;
           EvaluateExpression<8>(label, reading_line);
           break;
         case 10:
-          std::cout << "Reading expression in base 2 '" << label << "'..."<< std::endl;
+          std::cout << "Reading expression in base 10 '" << label << "'..."<< std::endl;
           EvaluateExpression<10>(label, reading_line);
           break;
         case 16:
-          std::cout << "Reading expression in base 2 '" << label << "'..."<< std::endl;
+          std::cout << "Reading expression in base 16 '" << label << "'..."<< std::endl;
           EvaluateExpression<16>(label, reading_line);
           break;
         default:
@@ -206,18 +206,30 @@ void ProcessFile(unsigned char base, const std::string& input_file, const std::s
   // Freeing the maps for the next use
   switch(base) {
     case 2:
+      for (auto& pair : map<2>) {
+        out_file << pair.first << " = " << *pair.second << std::endl;
+      }
       std::cout << "Clearing map ..." << std::endl;
       ClearMap<2>();
       break;
       case 8:
+      for (auto& pair : map<8>) {
+        out_file << pair.first << " = " << *pair.second << std::endl;
+      }
       std::cout << "Clearing map ..." << std::endl;
       ClearMap<2>();
       break;
     case 10:
+      for (auto& pair : map<10>) {
+        out_file << pair.first << " = " << *pair.second << std::endl;
+      }
       std::cout << "Clearing map ..." << std::endl;
       ClearMap<2>();
       break;
     case 16:
+      for (auto& pair : map<16>) {
+        out_file << pair.first << " = " << *pair.second << std::endl;
+      }
       std::cout << "Clearing map ..." << std::endl;
       ClearMap<2>();
       break;
