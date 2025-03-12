@@ -22,6 +22,7 @@
 **      06/03/2025 - Adaptacion del codigo para usar la clase abstracta BigNumber (big_number.h)
 **      07/03/2025 - Adicion de manejo de excepciones
 **      11/03/2025 - Cambio de implementacion de add, subtract, multiply y divide
+**      12/03/2025 - Pequeña optimizacion de la multiplicacion
 **/
 
 #ifndef BIG_UNSIGNED_H
@@ -630,10 +631,17 @@ template <unsigned char Base> BigUnsigned<Base> BigUnsigned<Base>::operator*(con
     return result;
   }
 
-  BigUnsigned<Base> counter;
-  while (counter < mult) {
-    result = result + *this; // Suma el número actual al resultado
-    ++counter; // Incrementa el contador
+  BigUnsigned<Base> min;
+  BigUnsigned<Base> max;
+  if (*this < mult) {
+    min = *this;
+    max = mult;
+  } else {
+    min = mult;
+    max = *this;
+  }
+  for (BigUnsigned<Base> counter; counter < min; ++counter) {
+    result = result + max;
   }
 
   return result;
